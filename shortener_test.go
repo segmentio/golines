@@ -1,0 +1,75 @@
+package main
+
+import (
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+const fixturesDir = "_fixtures"
+
+func TestShortener(t *testing.T) {
+	info, err := ioutil.ReadDir(fixturesDir)
+	assert.Nil(t, err)
+
+	fixturePaths := []string{}
+
+	for _, fileInfo := range info {
+		if fileInfo.IsDir() {
+			continue
+		} else if !strings.HasSuffix(fileInfo.Name(), ".go") {
+			continue
+		} else if strings.HasSuffix(fileInfo.Name(), "__exp.go") {
+			continue
+		}
+
+		fixturePaths = append(
+			fixturePaths,
+			filepath.Join(fixturesDir, fileInfo.Name()),
+		)
+	}
+
+	shortener := NewShortener(100, 4, false, true, true, "gofmt")
+
+	for _, fixturePath := range fixturePaths {
+		contents, err := ioutil.ReadFile(fixturePath)
+		if err != nil {
+			t.Fatalf(
+				"Unexpected error reading fixture %s: %+v",
+				fixturePath,
+				err,
+			)
+		}
+
+		shortenedContents, err := shortener.Shorten(contents)
+		assert.Nil(t, err)
+
+		expectedPath := fixturePath[0:len(fixturePath)-3] + "__exp" + ".go"
+
+		if os.Getenv("REGENERATE_TEST_OUTPUTS") == "true" {
+			err := ioutil.WriteFile(expectedPath, shortenedContents, 0644)
+			if err != nil {
+				t.Fatalf(
+					"Unexpected error writing output file %s: %+v",
+					expectedPath,
+					err,
+				)
+			}
+		}
+
+		expectedContents, err := ioutil.ReadFile(expectedPath)
+		if err != nil {
+			t.Fatalf(
+				"Unexpected error reading expected file %s: %+v",
+				expectedPath,
+				err,
+			)
+		}
+
+		assert.Equal(t, string(expectedContents), string(shortenedContents))
+	}
+}

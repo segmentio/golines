@@ -1,0 +1,28 @@
+version: 2
+jobs:
+  test:
+    working_directory: /go/src/github.com/segmentio/golines
+    docker:
+      - image: circleci/golang:1.13
+        environment:
+          GO111MODULE: 'on'
+    steps:
+      - checkout
+      - run:
+          name: Download dependencies
+          command: go mod download
+      - run:
+          name: Run tests
+          command: make test
+      - run:
+          name: Run Snyk
+          environment:
+            SNYK_LEVEL: 'FLHI'
+          command: curl -sL https://raw.githubusercontent.com/segmentio/snyk_helpers/master/initialization/snyk.sh | sh
+
+workflows:
+  version: 2
+  run:
+    jobs:
+      - test:
+          context: snyk
