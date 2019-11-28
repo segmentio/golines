@@ -12,6 +12,9 @@ import (
 
 const fixturesDir = "_fixtures"
 
+// TestShortener verifies the core shortening functionality on the files in the _fixtures
+// directory. To update the expected outputs, run tests with the REGENERATE_TEST_OUTPUTS
+// environment variable set to "true".
 func TestShortener(t *testing.T) {
 	info, err := ioutil.ReadDir(fixturesDir)
 	assert.Nil(t, err)

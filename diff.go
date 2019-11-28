@@ -50,6 +50,8 @@ if __name__ == "__main__":
     main()
 `
 
+// PrettyDiff prints colored, git-style diffs to the console. It uses an
+// embedded Python script (above) to take advantage of Python's difflib package.
 func PrettyDiff(path string, contents []byte, results []byte) error {
 	if reflect.DeepEqual(contents, results) {
 		return nil
@@ -75,6 +77,8 @@ func PrettyDiff(path string, contents []byte, results []byte) error {
 		string(resultBytes),
 	)
 
+	// The script should work with either python2 or python3, but prefer the latter
+	// if it's available.
 	pyPath, err := exec.LookPath("python3")
 	if err != nil {
 		pyPath, err = exec.LookPath("python")

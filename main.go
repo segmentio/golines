@@ -15,10 +15,13 @@ import (
 )
 
 var (
+	// Flags
 	maxLen = kingpin.Flag(
 		"max-len",
 		"Target maximum line length").Short('m').Default("100").Int()
-	tabLen      = kingpin.Flag("tab-len", "Length of a tab").Short('t').Default("4").Int()
+	tabLen = kingpin.Flag(
+		"tab-len",
+		"Length of a tab").Short('t').Default("4").Int()
 	writeOutput = kingpin.Flag(
 		"write-output",
 		"Write output to source instead of stdout").Short('w').Default("false").Bool()
@@ -34,14 +37,24 @@ var (
 	ignoreGenerated = kingpin.Flag(
 		"ignore-generated",
 		"Ignore generated go files").Default("true").Bool()
-	debug  = kingpin.Flag("debug", "Show debug output").Short('d').Default("false").Bool()
-	dryRun = kingpin.Flag("dry-run", "Show diffs without writing anything").
-		Default("false").Bool()
-	ignoredDirs = kingpin.Flag("ignored-dirs", "Directories to ignore").
-			Default("vendor", "node_modules", ".git").Strings()
-	baseFormatter = kingpin.Flag("base-formatter", "Base formatter to use").
-			Default("").String()
-	paths = kingpin.Arg("paths", "Paths to format").Strings()
+	debug = kingpin.Flag(
+		"debug",
+		"Show debug output").Short('d').Default("false").Bool()
+	dryRun = kingpin.Flag(
+		"dry-run",
+		"Show diffs without writing anything").Default("false").Bool()
+	ignoredDirs = kingpin.Flag(
+		"ignored-dirs",
+		"Directories to ignore").Default("vendor", "node_modules", ".git").Strings()
+	baseFormatter = kingpin.Flag(
+		"base-formatter",
+		"Base formatter to use").Default("").String()
+
+	// Args
+	paths = kingpin.Arg(
+		"paths",
+		"Paths to format",
+	).Strings()
 )
 
 func main() {
@@ -69,6 +82,7 @@ func main() {
 	)
 
 	if len(*paths) == 0 {
+		// Read input from stdin
 		contents, err := ioutil.ReadAll(os.Stdin)
 		if err != nil {
 			log.Fatal(err)
@@ -83,11 +97,13 @@ func main() {
 			log.Fatal(err)
 		}
 	} else {
+		// Read inputs from paths provided in arguments
 		for _, path := range *paths {
 			switch info, err := os.Stat(path); {
 			case err != nil:
 				log.Fatal(err)
 			case info.IsDir():
+				// Path is a directory- walk it
 				err = filepath.Walk(
 					path,
 					func(subPath string, subInfo os.FileInfo, err error) error {
@@ -105,6 +121,7 @@ func main() {
 						}
 
 						if !subInfo.IsDir() && strings.HasSuffix(subPath, ".go") {
+							// Shorten file and generate output
 							contents, result, err := processFile(shortener, subPath)
 							if err != nil {
 								log.Fatal(err)
@@ -122,6 +139,7 @@ func main() {
 					log.Fatal(err)
 				}
 			default:
+				// Path is a file
 				contents, result, err := processFile(shortener, path)
 				if err != nil {
 					log.Fatal(err)
@@ -135,6 +153,9 @@ func main() {
 	}
 }
 
+// processFile uses the provided Shortener instance to shorten the lines
+// in a file. It returns the original contents (useful for debugging), the
+// shortened version, and an error.
 func processFile(shortener *Shortener, path string) ([]byte, []byte, error) {
 	_, fileName := filepath.Split(path)
 	if *ignoreGenerated && strings.HasPrefix(fileName, "generated_") {
@@ -152,6 +173,9 @@ func processFile(shortener *Shortener, path string) ([]byte, []byte, error) {
 	return contents, result, err
 }
 
+// handleOutput generates output according to the value of the tool's
+// flags; depending on the latter, the output might be written over
+// the source file, printed to stdout, etc.
 func handleOutput(path string, contents []byte, result []byte) error {
 	if contents == nil {
 		return nil
