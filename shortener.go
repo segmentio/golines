@@ -39,6 +39,7 @@ type Shortener struct {
 	tabLen            int
 	keepAnnotations   bool
 	shortenComments   bool
+	reformatTags      bool
 	ignoreGenerated   bool
 	baseFormatter     string
 	baseFormatterArgs []string
@@ -49,6 +50,7 @@ func NewShortener(
 	tabLen int,
 	keepAnnotations bool,
 	shortenComments bool,
+	reformatTags bool,
 	ignoreGenerated bool,
 	baseFormatter string,
 ) *Shortener {
@@ -70,6 +72,7 @@ func NewShortener(
 		tabLen:          tabLen,
 		keepAnnotations: keepAnnotations,
 		shortenComments: shortenComments,
+		reformatTags:    reformatTags,
 		ignoreGenerated: ignoreGenerated,
 		baseFormatter:   formatterComponents[0],
 	}
@@ -104,7 +107,7 @@ func (s *Shortener) Shorten(contents []byte) ([]byte, error) {
 		// Annotate all long lines
 		var linesToShorten int
 		contents, linesToShorten = s.annotateLongLines(contents)
-		if linesToShorten == 0 {
+		if linesToShorten == 0 && (!s.reformatTags || round > 0) {
 			log.Debugf("No more lines to shorten, breaking")
 			break
 		}
@@ -538,6 +541,10 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool) {
 		s.formatExpr(e.Value, shouldShorten)
 	case *dst.SelectorExpr:
 		s.formatExpr(e.X, shouldShorten)
+	case *dst.StructType:
+		if s.reformatTags {
+			FormatStructTags(e.Fields)
+		}
 	case *dst.UnaryExpr:
 		s.formatExpr(e.X, shouldShorten)
 	default:
