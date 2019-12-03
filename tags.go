@@ -1,0 +1,112 @@
+package main
+
+import (
+	"fmt"
+	"reflect"
+	"regexp"
+	"strings"
+
+	"github.com/dave/dst"
+)
+
+var tagKeyRegexp = regexp.MustCompile("([a-zA-Z0-9_-]+):")
+
+// FormatStructTags formats struct tags so that the keys within each block of each
+// field are aligned. It's not technically a shortening (and it usually makes these tags longer),
+// so keeping it separate from the core shortening logic.
+//
+// See the struct_tags fixture for examples.
+func FormatStructTags(fieldList *dst.FieldList) {
+	if fieldList == nil || len(fieldList.List) == 0 {
+		return
+	}
+
+	blockFields := []*dst.Field{}
+
+	for f, field := range fieldList.List {
+		if f == 0 || field.Decorations().Before == dst.EmptyLine {
+			alignTags(blockFields)
+			blockFields = blockFields[:0]
+		}
+
+		blockFields = append(blockFields, field)
+	}
+
+	alignTags(blockFields)
+}
+
+func alignTags(fields []*dst.Field) {
+	if len(fields) == 0 {
+		return
+	}
+
+	maxTagWidths := map[string]int{}
+	tagKeys := []string{}
+	tagKVs := make([]map[string]string, len(fields))
+
+	for f, field := range fields {
+		if field.Tag == nil {
+			continue
+		}
+
+		tagValue := field.Tag.Value
+
+		if tagValue[0] != '`' || tagValue[len(tagValue)-1] != '`' {
+			continue
+		}
+
+		tagValue = tagValue[1 : len(tagValue)-1]
+		structTag := reflect.StructTag(tagValue)
+
+		keyMatches := tagKeyRegexp.FindAllStringSubmatch(tagValue, -1)
+
+		for _, keyMatch := range keyMatches {
+			key := keyMatch[1]
+
+			value := structTag.Get(key)
+			width := len(key) + len(value) + 3
+
+			if _, ok := maxTagWidths[key]; !ok {
+				maxTagWidths[key] = width
+				tagKeys = append(tagKeys, key)
+			} else if width > maxTagWidths[key] {
+				maxTagWidths[key] = width
+			}
+
+			if tagKVs[f] == nil {
+				tagKVs[f] = map[string]string{}
+			}
+
+			tagKVs[f][key] = value
+		}
+	}
+
+	for f, field := range fields {
+		if tagKVs[f] == nil {
+			continue
+		}
+
+		tagComponents := []string{}
+
+		for _, key := range tagKeys {
+			value, ok := tagKVs[f][key]
+			lenUsed := 0
+
+			if ok {
+				tagComponents = append(tagComponents, fmt.Sprintf("%s:\"%s\"", key, value))
+				lenUsed += len(key) + len(value) + 3
+			} else {
+				tagComponents = append(tagComponents, "")
+			}
+
+			lenRemaining := maxTagWidths[key] - lenUsed
+
+			for i := 0; i < lenRemaining; i++ {
+				tagComponents[len(tagComponents)-1] += " "
+			}
+		}
+
+		updatedTagValue := strings.TrimRight(strings.Join(tagComponents, " "), " ")
+		field.Tag.Value = fmt.Sprintf("`%s`", updatedTagValue)
+	}
+}

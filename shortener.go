@@ -538,6 +538,8 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool) {
 		s.formatExpr(e.Value, shouldShorten)
 	case *dst.SelectorExpr:
 		s.formatExpr(e.X, shouldShorten)
+	case *dst.StructType:
+		FormatStructTags(e.Fields)
 	case *dst.UnaryExpr:
 		s.formatExpr(e.X, shouldShorten)
 	default:
