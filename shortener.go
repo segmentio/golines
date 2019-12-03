@@ -32,15 +32,17 @@ var (
 // prevent loops that prevent termination.
 const maxRounds = 20
 
-// ShortenerConfig stores the configuration options exposed by a Shortener. These should all
-// be set unless
+// ShortenerConfig stores the configuration options exposed by a Shortener instance.
 type ShortenerConfig struct {
-	MaxLen           int
-	TabLen           int
-	KeepAnnotations  bool
-	ShortenComments  bool
-	ReformatTags     bool
-	IgnoreGenerated  bool
+	MaxLen          int  // Max target width for each line
+	TabLen          int  // Width of a tab character
+	KeepAnnotations bool // Whether to keep annotations in final result (for debugging only)
+	ShortenComments bool // Whether to shorten comments
+	ReformatTags    bool // Whether to reformat struct tags in addition to shortening long lines
+	IgnoreGenerated bool // Whether to ignore generated files
+
+	// Formatter that will be run before and after main shortening process. If empty,
+	// defaults to goimports (if found), otherwise gofmt.
 	BaseFormatterCmd string
 }
 
