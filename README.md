@@ -59,13 +59,13 @@ set via the `--base-formatter` flag.
 
 #### Generated files
 
-By default, the tool will not format any files that look like they're generated. If you really
-want to reformat these too, run with the `--ignore-generated=false` flag.
+By default, the tool will not format any files that look like they're generated. If you
+want to reformat these too, run with the `--no-ignore-generated` flag.
 
 #### Struct tag reformatting
 
 In addition to shortening long lines, the tool also aligns struct tag keys; see the
-struct tags [before](_fixtures/struct_tags.go) and [after](_fixtures/struct_tags__exp.go)
+associated [before](_fixtures/struct_tags.go) and [after](_fixtures/struct_tags__exp.go)
 examples in the `_fixtures` directory. To turn this behavior off, run with `--no-reformat-tags`.
 
 ## How It Works

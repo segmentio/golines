@@ -12,8 +12,8 @@ import (
 var tagKeyRegexp = regexp.MustCompile("([a-zA-Z0-9_-]+):")
 
 // FormatStructTags formats struct tags so that the keys within each block of fields are aligned.
-// It's not technically a shortening (and it usually makes these tags longer), so keeping it
-// separate from the core shortening logic.
+// It's not technically a shortening (and it usually makes these tags longer), so it's being
+// kept separate from the core shortening logic for now.
 //
 // See the struct_tags fixture for examples.
 func FormatStructTags(fieldList *dst.FieldList) {
@@ -23,6 +23,7 @@ func FormatStructTags(fieldList *dst.FieldList) {
 
 	blockFields := []*dst.Field{}
 
+	// Divide fields into "blocks" so that we don't do alignments across blank lines
 	for f, field := range fieldList.List {
 		if f == 0 || field.Decorations().Before == dst.EmptyLine {
 			alignTags(blockFields)
@@ -35,6 +36,7 @@ func FormatStructTags(fieldList *dst.FieldList) {
 	alignTags(blockFields)
 }
 
+// alignTags formats the struct tags within a single field block.
 func alignTags(fields []*dst.Field) {
 	if len(fields) == 0 {
 		return
