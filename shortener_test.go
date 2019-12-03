@@ -36,7 +36,17 @@ func TestShortener(t *testing.T) {
 		)
 	}
 
-	shortener := NewShortener(100, 4, false, true, true, true, "gofmt")
+	shortener := NewShortener(
+		ShortenerConfig{
+			MaxLen:           100,
+			TabLen:           4,
+			KeepAnnotations:  false,
+			ShortenComments:  true,
+			ReformatTags:     true,
+			IgnoreGenerated:  true,
+			BaseFormatterCmd: "gofmt",
+		},
+	)
 
 	for _, fixturePath := range fixturePaths {
 		contents, err := ioutil.ReadFile(fixturePath)

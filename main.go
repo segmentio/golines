@@ -16,42 +16,42 @@ import (
 
 var (
 	// Flags
-	maxLen = kingpin.Flag(
-		"max-len",
-		"Target maximum line length").Short('m').Default("100").Int()
-	tabLen = kingpin.Flag(
-		"tab-len",
-		"Length of a tab").Short('t').Default("4").Int()
-	writeOutput = kingpin.Flag(
-		"write-output",
-		"Write output to source instead of stdout").Short('w').Default("false").Bool()
-	listFiles = kingpin.Flag(
-		"list-files",
-		"List files that would be reformatted by this tool").Short('l').Default("false").Bool()
-	keepAnnotations = kingpin.Flag(
-		"keep-annotations",
-		"Keep shortening annotations in final output").Default("false").Bool()
-	shortenComments = kingpin.Flag(
-		"shorten-comments",
-		"Shorten single-line comments").Default("false").Bool()
-	reformatTags = kingpin.Flag(
-		"reformat-tags",
-		"Reformat struct tags").Default("true").Bool()
-	ignoreGenerated = kingpin.Flag(
-		"ignore-generated",
-		"Ignore generated go files").Default("true").Bool()
+	baseFormatterCmd = kingpin.Flag(
+		"base-formatter",
+		"Base formatter to use").Default("").String()
 	debug = kingpin.Flag(
 		"debug",
 		"Show debug output").Short('d').Default("false").Bool()
 	dryRun = kingpin.Flag(
 		"dry-run",
 		"Show diffs without writing anything").Default("false").Bool()
+	ignoreGenerated = kingpin.Flag(
+		"ignore-generated",
+		"Ignore generated go files").Default("true").Bool()
 	ignoredDirs = kingpin.Flag(
 		"ignored-dirs",
 		"Directories to ignore").Default("vendor", "node_modules", ".git").Strings()
-	baseFormatter = kingpin.Flag(
-		"base-formatter",
-		"Base formatter to use").Default("").String()
+	keepAnnotations = kingpin.Flag(
+		"keep-annotations",
+		"Keep shortening annotations in final output").Default("false").Bool()
+	listFiles = kingpin.Flag(
+		"list-files",
+		"List files that would be reformatted by this tool").Short('l').Default("false").Bool()
+	maxLen = kingpin.Flag(
+		"max-len",
+		"Target maximum line length").Short('m').Default("100").Int()
+	reformatTags = kingpin.Flag(
+		"reformat-tags",
+		"Reformat struct tags").Default("true").Bool()
+	shortenComments = kingpin.Flag(
+		"shorten-comments",
+		"Shorten single-line comments").Default("false").Bool()
+	tabLen = kingpin.Flag(
+		"tab-len",
+		"Length of a tab").Short('t').Default("4").Int()
+	writeOutput = kingpin.Flag(
+		"write-output",
+		"Write output to source instead of stdout").Short('w').Default("false").Bool()
 
 	// Args
 	paths = kingpin.Arg(
@@ -75,15 +75,16 @@ func main() {
 		ForceFormatting: true,
 	})
 
-	shortener := NewShortener(
-		*maxLen,
-		*tabLen,
-		*keepAnnotations,
-		*shortenComments,
-		*reformatTags,
-		*ignoreGenerated,
-		*baseFormatter,
-	)
+	config := ShortenerConfig{
+		MaxLen:           *maxLen,
+		TabLen:           *tabLen,
+		KeepAnnotations:  *keepAnnotations,
+		ShortenComments:  *shortenComments,
+		ReformatTags:     *reformatTags,
+		IgnoreGenerated:  *ignoreGenerated,
+		BaseFormatterCmd: *baseFormatterCmd,
+	}
+	shortener := NewShortener(config)
 
 	if len(*paths) == 0 {
 		// Read input from stdin

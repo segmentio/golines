@@ -12,8 +12,12 @@ build:
 	go build .
 
 .PHONY: test
-test:
+test: vet
 	go test .
+
+.PHONY: vet
+vet:
+	go vet .
 
 .PHONY: regenerate
 regenerate:

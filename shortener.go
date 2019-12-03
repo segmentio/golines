@@ -32,31 +32,33 @@ var (
 // prevent loops that prevent termination.
 const maxRounds = 20
 
+// ShortenerConfig stores the configuration options exposed by a Shortener. These should all
+// be set unless
+type ShortenerConfig struct {
+	MaxLen           int
+	TabLen           int
+	KeepAnnotations  bool
+	ShortenComments  bool
+	ReformatTags     bool
+	IgnoreGenerated  bool
+	BaseFormatterCmd string
+}
+
 // Shortener shortens a single go file according to a small set of user style
 // preferences.
 type Shortener struct {
-	maxLen            int
-	tabLen            int
-	keepAnnotations   bool
-	shortenComments   bool
-	reformatTags      bool
-	ignoreGenerated   bool
+	config ShortenerConfig
+
+	// Some extra params around the base formatter generated from the BaseFormatterCmd
+	// argument in the config.
 	baseFormatter     string
 	baseFormatterArgs []string
 }
 
-func NewShortener(
-	maxLen int,
-	tabLen int,
-	keepAnnotations bool,
-	shortenComments bool,
-	reformatTags bool,
-	ignoreGenerated bool,
-	baseFormatter string,
-) *Shortener {
+func NewShortener(config ShortenerConfig) *Shortener {
 	var formatterComponents []string
 
-	if baseFormatter == "" {
+	if config.BaseFormatterCmd == "" {
 		_, err := exec.LookPath("goimports")
 		if err != nil {
 			formatterComponents = []string{"gofmt"}
@@ -64,17 +66,12 @@ func NewShortener(
 			formatterComponents = []string{"goimports"}
 		}
 	} else {
-		formatterComponents = strings.Split(baseFormatter, " ")
+		formatterComponents = strings.Split(config.BaseFormatterCmd, " ")
 	}
 
 	s := &Shortener{
-		maxLen:          maxLen,
-		tabLen:          tabLen,
-		keepAnnotations: keepAnnotations,
-		shortenComments: shortenComments,
-		reformatTags:    reformatTags,
-		ignoreGenerated: ignoreGenerated,
-		baseFormatter:   formatterComponents[0],
+		config:        config,
+		baseFormatter: formatterComponents[0],
 	}
 
 	if len(formatterComponents) > 1 {
@@ -88,7 +85,7 @@ func NewShortener(
 
 // Shorten shortens the provided golang file content bytes.
 func (s *Shortener) Shorten(contents []byte) ([]byte, error) {
-	if s.ignoreGenerated && s.isGenerated(contents) {
+	if s.config.IgnoreGenerated && s.isGenerated(contents) {
 		return contents, nil
 	}
 
@@ -107,7 +104,7 @@ func (s *Shortener) Shorten(contents []byte) ([]byte, error) {
 		// Annotate all long lines
 		var linesToShorten int
 		contents, linesToShorten = s.annotateLongLines(contents)
-		if linesToShorten == 0 && (!s.reformatTags || round > 0) {
+		if linesToShorten == 0 && (!s.config.ReformatTags || round > 0) {
 			log.Debugf("No more lines to shorten, breaking")
 			break
 		}
@@ -142,10 +139,10 @@ func (s *Shortener) Shorten(contents []byte) ([]byte, error) {
 		}
 	}
 
-	if !s.keepAnnotations {
+	if !s.config.KeepAnnotations {
 		contents = s.removeAnnotations(contents)
 	}
-	if s.shortenComments {
+	if s.config.ShortenComments {
 		contents = s.shortenCommentsFunc(contents)
 	}
 
@@ -206,7 +203,7 @@ func (s *Shortener) annotateLongLines(contents []byte) ([]byte, int) {
 		length := s.lineLen(line)
 
 		if prevLen > -1 {
-			if length <= s.maxLen {
+			if length <= s.config.MaxLen {
 				// Shortening successful, remove previous annotation
 				annotatedLines = annotatedLines[:len(annotatedLines)-1]
 			} else if length < prevLen {
@@ -217,7 +214,7 @@ func (s *Shortener) annotateLongLines(contents []byte) ([]byte, int) {
 				)
 				linesToShorten += 1
 			}
-		} else if !s.isComment(line) && length > s.maxLen {
+		} else if !s.isComment(line) && length > s.config.MaxLen {
 			annotatedLines = append(
 				annotatedLines,
 				fmt.Sprintf(
@@ -259,11 +256,11 @@ func (s *Shortener) shortenCommentsFunc(contents []byte) []byte {
 	for _, line := range lines {
 		if s.isComment(line) && !s.isAnnotation(line) &&
 			!s.isGoDirective(line) &&
-			s.lineLen(line) > s.maxLen {
+			s.lineLen(line) > s.config.MaxLen {
 			// Try splitting up this comment line
 			start := strings.Index(line, "//")
 			prefix := line[0:(start + 2)]
-			maxCommentLen := s.maxLen - s.lineLen(prefix) + 1
+			maxCommentLen := s.config.MaxLen - s.lineLen(prefix) + 1
 
 			trimmedLine := strings.Trim(line[(start+2):], " ")
 			words := strings.Split(trimmedLine, " ")
@@ -320,7 +317,7 @@ func (s *Shortener) lineLen(line string) int {
 
 	for _, char := range line {
 		if char == '\t' {
-			length += s.tabLen
+			length += s.config.TabLen
 		} else {
 			length += 1
 		}
@@ -542,7 +539,7 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool) {
 	case *dst.SelectorExpr:
 		s.formatExpr(e.X, shouldShorten)
 	case *dst.StructType:
-		if s.reformatTags {
+		if s.config.ReformatTags {
 			FormatStructTags(e.Fields)
 		}
 	case *dst.UnaryExpr:
