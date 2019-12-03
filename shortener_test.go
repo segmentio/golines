@@ -36,7 +36,7 @@ func TestShortener(t *testing.T) {
 		)
 	}
 
-	shortener := NewShortener(100, 4, false, true, true, "gofmt")
+	shortener := NewShortener(100, 4, false, true, true, true, "gofmt")
 
 	for _, fixturePath := range fixturePaths {
 		contents, err := ioutil.ReadFile(fixturePath)

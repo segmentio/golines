@@ -11,9 +11,9 @@ import (
 
 var tagKeyRegexp = regexp.MustCompile("([a-zA-Z0-9_-]+):")
 
-// FormatStructTags formats struct tags so that the keys within each block of each
-// field are aligned. It's not technically a shortening (and it usually makes these tags longer),
-// so keeping it separate from the core shortening logic.
+// FormatStructTags formats struct tags so that the keys within each block of fields are aligned.
+// It's not technically a shortening (and it usually makes these tags longer), so keeping it
+// separate from the core shortening logic.
 //
 // See the struct_tags fixture for examples.
 func FormatStructTags(fieldList *dst.FieldList) {
@@ -44,6 +44,7 @@ func alignTags(fields []*dst.Field) {
 	tagKeys := []string{}
 	tagKVs := make([]map[string]string, len(fields))
 
+	// First, scan over all field tags so that we can understand their values and widths
 	for f, field := range fields {
 		if field.Tag == nil {
 			continue
@@ -51,6 +52,7 @@ func alignTags(fields []*dst.Field) {
 
 		tagValue := field.Tag.Value
 
+		// The dst library doesn't strip off the backticks, so we need to do this manually
 		if tagValue[0] != '`' || tagValue[len(tagValue)-1] != '`' {
 			continue
 		}
@@ -64,6 +66,8 @@ func alignTags(fields []*dst.Field) {
 			key := keyMatch[1]
 
 			value := structTag.Get(key)
+
+			// Tag is key, value, and some extra chars (two quotes + one colon)
 			width := len(key) + len(value) + 3
 
 			if _, ok := maxTagWidths[key]; !ok {
@@ -81,6 +85,7 @@ func alignTags(fields []*dst.Field) {
 		}
 	}
 
+	// Go over all the fields again, replacing each tag with a reformatted one
 	for f, field := range fields {
 		if tagKVs[f] == nil {
 			continue

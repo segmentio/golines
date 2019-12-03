@@ -34,6 +34,9 @@ var (
 	shortenComments = kingpin.Flag(
 		"shorten-comments",
 		"Shorten single-line comments").Default("false").Bool()
+	reformatTags = kingpin.Flag(
+		"reformat-tags",
+		"Reformat struct tags").Default("true").Bool()
 	ignoreGenerated = kingpin.Flag(
 		"ignore-generated",
 		"Ignore generated go files").Default("true").Bool()
@@ -77,6 +80,7 @@ func main() {
 		*tabLen,
 		*keepAnnotations,
 		*shortenComments,
+		*reformatTags,
 		*ignoreGenerated,
 		*baseFormatter,
 	)
