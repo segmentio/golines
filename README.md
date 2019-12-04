@@ -32,6 +32,17 @@ files in place, use the `-w` flag.
 Some other options are described in the sections below. Run `golines --help` to see
 all available flags and settings.
 
+### vim-go setup
+
+Add these to your vimrc, substituting 128 with your preferred line length.
+
+```vim
+let g:go_fmt_command = "golines"
+let g:go_fmt_options = {
+    \ 'golines': '-m 128',
+    \ }
+```
+
 #### Line length settings
 
 By default, the tool tries to shorten lines that are longer than 100 columns
