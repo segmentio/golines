@@ -10,6 +10,19 @@ import (
 )
 
 var tagKeyRegexp = regexp.MustCompile("([a-zA-Z0-9_-]+):")
+var structTagRegexp = regexp.MustCompile("`([ ]*[a-zA-Z0-9_-]+:\".*\"[ ]*){2,}`")
+
+// HasMultiKeyTags returns whether the given lines have a multikey struct line.
+// It's used as an optimization step to avoid unnnecessary shortening rounds.
+func HasMultiKeyTags(lines []string) bool {
+	for _, line := range lines {
+		if structTagRegexp.MatchString(line) {
+			return true
+		}
+	}
+
+	return false
+}
 
 // FormatStructTags formats struct tags so that the keys within each block of fields are aligned.
 // It's not technically a shortening (and it usually makes these tags longer), so it's being

@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"runtime/pprof"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -40,6 +41,9 @@ var (
 	maxLen = kingpin.Flag(
 		"max-len",
 		"Target maximum line length").Short('m').Default("100").Int()
+	profile = kingpin.Flag(
+		"profile",
+		"Path to profile output").Default("").String()
 	reformatTags = kingpin.Flag(
 		"reformat-tags",
 		"Reformat struct tags").Default("true").Bool()
@@ -67,6 +71,15 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	} else {
 		log.SetLevel(log.InfoLevel)
+	}
+
+	if *profile != "" {
+		f, err := os.Create(*profile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
 	}
 
 	log.SetFormatter(&prefixed.TextFormatter{

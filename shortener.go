@@ -104,19 +104,38 @@ func (s *Shortener) Shorten(contents []byte) ([]byte, error) {
 		log.Debugf("Starting round %d", round)
 
 		// Annotate all long lines
-		var linesToShorten int
-		contents, linesToShorten = s.annotateLongLines(contents)
-		if linesToShorten == 0 && (!s.config.ReformatTags || round > 0) {
-			log.Debugf("No more lines to shorten, breaking")
+		lines := strings.Split(string(contents), "\n")
+		annotatedLines, linesToShorten := s.annotateLongLines(lines)
+		var stop bool
+
+		if linesToShorten == 0 {
+			if round == 0 {
+				if !s.config.ReformatTags {
+					stop = true
+				} else if !HasMultiKeyTags(lines) {
+					stop = true
+				}
+			} else {
+				stop = true
+			}
+		}
+
+		if stop {
+			log.Debug("Nothing more to shorten or reformat, stopping")
 			break
 		}
+
+		contents = []byte(strings.Join(annotatedLines, "\n"))
 
 		// Generate AST
 		result, err := decorator.Parse(contents)
 		if err != nil {
 			return nil, err
 		}
-		if round == 0 {
+
+		// Wrap call in a check so that spew dump isn't evaluated
+		// unless necessary
+		if round == 0 && log.IsLevelEnabled(log.DebugLevel) {
 			log.Debug("Parse tree:\n", spew.Sdump(result))
 		}
 
@@ -194,10 +213,8 @@ func (s *Shortener) formatSrc(contents []byte) ([]byte, error) {
 // annotateLongLines adds specially-formatted comments to all eligible lines that are longer than
 // the configured target length. If a line already has one of these comments from a previous
 // shortening round, then the comment contents are updated.
-func (s *Shortener) annotateLongLines(contents []byte) ([]byte, int) {
+func (s *Shortener) annotateLongLines(lines []string) ([]string, int) {
 	annotatedLines := []string{}
-	lines := strings.Split(string(contents), "\n")
-
 	linesToShorten := 0
 	prevLen := -1
 
@@ -214,7 +231,7 @@ func (s *Shortener) annotateLongLines(contents []byte) ([]byte, int) {
 					"// __golines:shorten:%d",
 					length,
 				)
-				linesToShorten += 1
+				linesToShorten++
 			}
 		} else if !s.isComment(line) && length > s.config.MaxLen {
 			annotatedLines = append(
@@ -224,14 +241,14 @@ func (s *Shortener) annotateLongLines(contents []byte) ([]byte, int) {
 					length,
 				),
 			)
-			linesToShorten += 1
+			linesToShorten++
 		}
 
 		annotatedLines = append(annotatedLines, line)
 		prevLen = s.parseAnnotation(line)
 	}
 
-	return []byte(strings.Join(annotatedLines, "\n")), linesToShorten
+	return annotatedLines, linesToShorten
 }
 
 // removeAnnotations removes all comments that were added by the annotateLongLines
@@ -321,7 +338,7 @@ func (s *Shortener) lineLen(line string) int {
 		if char == '\t' {
 			length += s.config.TabLen
 		} else {
-			length += 1
+			length++
 		}
 	}
 
