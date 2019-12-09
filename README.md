@@ -3,7 +3,39 @@
 Golines is a golang formatter that shortens long lines, in addition to all
 of the formatting fixes done by [`gofmt`](https://golang.org/cmd/gofmt/).
 
-## Example
+## Motivation
+
+The standard golang formatting tools (`gofmt`, `goimports`, etc.) are great, but
+[deliberately don't shorten long lines](https://github.com/golang/go/issues/11915); instead, this
+is an activity left to developers.
+
+While there are different tastes when it comes to line lengths in go, we've generally found
+that very long lines are more difficult to read than their shortened alternatives. As an example:
+
+```go
+func MyFunction(myFirstArgument string, mySecondArgument string, myThirdArgument string, myFourthArgument string, myFifthArgument string) (string, error) {
+  ...
+}
+```
+
+vs.
+
+```go
+func MyFunction(
+    myFirstArgument string,
+    mySecondArgument string,
+    myThirdArgument string,
+    myFourthArgument string,
+    myFifthArgument string,
+) (string, error) {
+  ...
+}
+```
+
+We built `golines` to give go developers the option to automatically shorten long lines, like
+the one above, according to their preferences.
+
+## Examples
 
 See this [before](_fixtures/end_to_end.go) and [after](_fixtures/end_to_end__exp.go)
 view a file with very long lines. More example pairs can be found in the
@@ -29,19 +61,10 @@ provided, then input is taken from stdin (as with `gofmt`).
 By default, the results are printed to stdout. To overwrite the existing
 files in place, use the `-w` flag.
 
+## Options
+
 Some other options are described in the sections below. Run `golines --help` to see
 all available flags and settings.
-
-### vim-go setup
-
-Add these to your vimrc, substituting 128 with your preferred line length.
-
-```vim
-let g:go_fmt_command = "golines"
-let g:go_fmt_options = {
-    \ 'golines': '-m 128',
-    \ }
-```
 
 #### Line length settings
 
@@ -78,6 +101,23 @@ want to reformat these too, run with the `--no-ignore-generated` flag.
 In addition to shortening long lines, the tool also aligns struct tag keys; see the
 associated [before](_fixtures/struct_tags.go) and [after](_fixtures/struct_tags__exp.go)
 examples in the `_fixtures` directory. To turn this behavior off, run with `--no-reformat-tags`.
+
+## Developer Tooling Integration
+
+### vim-go
+
+Add these to your vimrc, substituting 128 with your preferred line length.
+
+```vim
+let g:go_fmt_command = "golines"
+let g:go_fmt_options = {
+    \ 'golines': '-m 128',
+    \ }
+```
+
+### Others
+
+Coming soon.
 
 ## How It Works
 
