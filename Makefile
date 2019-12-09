@@ -13,7 +13,7 @@ build:
 
 .PHONY: test
 test: vet
-	go test .
+	go test -count=1 .
 
 .PHONY: vet
 vet:
