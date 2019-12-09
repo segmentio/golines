@@ -106,7 +106,7 @@ examples in the `_fixtures` directory. To turn this behavior off, run with `--no
 
 ### vim-go
 
-Add these to your vimrc, substituting 128 with your preferred line length.
+Add the following lines to your vimrc, substituting `128` with your preferred line length:
 
 ```vim
 let g:go_fmt_command = "golines"
