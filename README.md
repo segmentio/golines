@@ -20,11 +20,11 @@ vs.
 
 ```go
 return fmt.Errorf(
-  "This is an error; arg1=%s, arg2=%s, arg3=%s, arg4=%s",
-  firstArgument,
-  secondArgument,
-  thirdArgument,
-  fourthArgument,
+	"This is an error; arg1=%s, arg2=%s, arg3=%s, arg4=%s",
+	firstArgument,
+	secondArgument,
+	thirdArgument,
+	fourthArgument,
 )
 ```
 
