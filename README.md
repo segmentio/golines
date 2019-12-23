@@ -13,23 +13,19 @@ While there are different tastes when it comes to line lengths in go, we've gene
 that very long lines are more difficult to read than their shortened alternatives. As an example:
 
 ```go
-func MyFunction(myFirstArgument string, mySecondArgument string, myThirdArgument string, myFourthArgument string, myFifthArgument string) (string, error) {
-  ...
-}
+return fmt.Errorf("This is an error; arg1=%s, arg2=%s, arg3=%s, arg4=%s", firstArgument, secondArgument, thirdArgument, fourthArgument)
 ```
 
 vs.
 
 ```go
-func MyFunction(
-    myFirstArgument string,
-    mySecondArgument string,
-    myThirdArgument string,
-    myFourthArgument string,
-    myFifthArgument string,
-) (string, error) {
-  ...
-}
+return fmt.Errorf(
+  "This is an error; arg1=%s, arg2=%s, arg3=%s, arg4=%s",
+  firstArgument,
+  secondArgument,
+  thirdArgument,
+  fourthArgument,
+)
 ```
 
 We built `golines` to give go developers the option to automatically shorten long lines, like
