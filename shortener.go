@@ -139,6 +139,10 @@ func (s *Shortener) Shorten(contents []byte) ([]byte, error) {
 			log.Debug("Parse tree:\n", spew.Sdump(result))
 		}
 
+		fmt.Println(">>>>>>")
+		CreateDot(result)
+		fmt.Println("<<<<<<")
+
 		// Shorten the file starting at the top-level declarations
 		for _, decl := range result.Decls {
 			s.formatNode(decl)
