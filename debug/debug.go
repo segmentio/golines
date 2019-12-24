@@ -17,20 +17,14 @@ func genNodeToGraphNode() error {
 
 	f.Func().Id("NodeToGraphNode").Params(
 		Id("node").Qual(dstPath, "Node"),
-		Id("level").Id("int"),
-		Id("sequence").Id("int"),
 	).Op("*").Id("GraphNode").BlockFunc(
 		func(g *Group) {
 			g.Id("gNode").Op(":=").Op("&").Id("GraphNode").Values(
-				Id("Level").Op(":").Id("level"),
-				Id("Sequence").Op(":").Id("sequence"),
 				Id("Node").Op(":").Id("node"),
 				Id("Edges").Op(":").Index().Op("*").Id("GraphEdge").Values(),
 			)
 
 			g.Var().Id("child").Op("*").Id("GraphNode")
-			g.Id("nextLevel").Op(":=").Id("level").Op("+").Id("1")
-			g.Id("nextSeq").Op(":=").Id("0")
 
 			g.Switch(Id("n").Op(":=").Id("node").Assert(Id("type"))).BlockFunc(
 				func(g *Group) {
@@ -38,7 +32,6 @@ func genNodeToGraphNode() error {
 						g.Case(Op("*").Qual(dstPath, key)).BlockFunc(
 							func(g *Group) {
 								g.Id("gNode").Dot("Type").Op("=").Lit(key)
-								g.Qual("log", "Println").Call(Lit(key))
 
 								for _, part := range parts {
 									switch p := part.(type) {
@@ -47,8 +40,6 @@ func genNodeToGraphNode() error {
 											Id("child").Op("=").Id("NodeToGraphNode").
 												Call(
 													p.Field.Get("n"),
-													Id("nextLevel"),
-													Id("nextSeq"),
 												),
 											Id("gNode").Dot("Edges").Op("=").Append(
 												Id("gNode").Dot("Edges"),
@@ -57,7 +48,6 @@ func genNodeToGraphNode() error {
 													Id("Relationship").Op(":").Lit(p.Name),
 												),
 											),
-											Id("nextSeq").Op("++"),
 										)
 									case data.List:
 										g.If(p.Field.Get("n").Op("!=").Nil()).Block(
@@ -68,8 +58,6 @@ func genNodeToGraphNode() error {
 												Id("child").Op("=").Id("NodeToGraphNode").
 													Call(
 														Id("obj"),
-														Id("nextLevel"),
-														Id("nextSeq"),
 													),
 												Id("gNode").Dot("Edges").Op("=").Append(
 													Id("gNode").Dot("Edges"),
@@ -78,13 +66,12 @@ func genNodeToGraphNode() error {
 														Id("Relationship").Op(":").Lit(p.Name),
 													),
 												),
-												Id("nextSeq").Op("++"),
 											),
 										)
-									case data.Value:
-										g.Id("gNode").Dot("Value").Op("=").Lit(p.Name)
 									case data.String:
-										g.Id("gNode").Dot("Value").Op("=").Lit(p.Name)
+										g.Id("gNode").Dot("Value").Op("=").Add(
+											p.ValueField.Get("n"),
+										)
 									}
 								}
 							},
@@ -93,6 +80,7 @@ func genNodeToGraphNode() error {
 				},
 			)
 
+			g.Qual("log", "Println").Call(Id("gNode").Dot("Type"), Id("gNode").Dot("Value"))
 			g.Return().Id("gNode")
 		},
 	)
