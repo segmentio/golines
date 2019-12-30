@@ -31,7 +31,7 @@ func HasAnnotation(node dst.Node) bool {
 		IsAnnotation(startDecorations[len(startDecorations)-1])
 }
 
-// hasAnnotationRecursive determines whether the given node or one of its children has a
+// HasAnnotationRecursive determines whether the given node or one of its children has a
 // golines annotation on it. It's currently implemented for function declarations, fields,
 // and call expressions only.
 func HasAnnotationRecursive(node dst.Node) bool {
