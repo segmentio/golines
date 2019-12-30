@@ -5,15 +5,14 @@ import (
 	"fmt"
 	"go/format"
 	"go/token"
+	"os"
 	"os/exec"
 	"reflect"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/dave/dst"
 	"github.com/dave/dst/decorator"
-	"github.com/davecgh/go-spew/spew"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -34,12 +33,13 @@ const maxRounds = 20
 
 // ShortenerConfig stores the configuration options exposed by a Shortener instance.
 type ShortenerConfig struct {
-	MaxLen          int  // Max target width for each line
-	TabLen          int  // Width of a tab character
-	KeepAnnotations bool // Whether to keep annotations in final result (for debugging only)
-	ShortenComments bool // Whether to shorten comments
-	ReformatTags    bool // Whether to reformat struct tags in addition to shortening long lines
-	IgnoreGenerated bool // Whether to ignore generated files
+	MaxLen          int    // Max target width for each line
+	TabLen          int    // Width of a tab character
+	KeepAnnotations bool   // Whether to keep annotations in final result (for debugging only)
+	ShortenComments bool   // Whether to shorten comments
+	ReformatTags    bool   // Whether to reformat struct tags in addition to shortening long lines
+	IgnoreGenerated bool   // Whether to ignore generated files
+	DotFile         string // Path to write dot-formatted output to (for debugging only)
 
 	// Formatter that will be run before and after main shortening process. If empty,
 	// defaults to goimports (if found), otherwise gofmt.
@@ -133,10 +133,18 @@ func (s *Shortener) Shorten(contents []byte) ([]byte, error) {
 			return nil, err
 		}
 
-		// Wrap call in a check so that spew dump isn't evaluated
-		// unless necessary
-		if round == 0 && log.IsLevelEnabled(log.DebugLevel) {
-			log.Debug("Parse tree:\n", spew.Sdump(result))
+		if s.config.DotFile != "" {
+			dotFile, err := os.Create(s.config.DotFile)
+			if err != nil {
+				return nil, err
+			}
+			defer dotFile.Close()
+
+			log.Debugf("Writing dot file output to %s", s.config.DotFile)
+			err = CreateDot(result, dotFile)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		// Shorten the file starting at the top-level declarations
@@ -227,25 +235,19 @@ func (s *Shortener) annotateLongLines(lines []string) ([]string, int) {
 				annotatedLines = annotatedLines[:len(annotatedLines)-1]
 			} else if length < prevLen {
 				// Replace annotation with new length
-				annotatedLines[len(annotatedLines)-1] = fmt.Sprintf(
-					"// __golines:shorten:%d",
-					length,
-				)
+				annotatedLines[len(annotatedLines)-1] = CreateAnnotation(length)
 				linesToShorten++
 			}
 		} else if !s.isComment(line) && length > s.config.MaxLen {
 			annotatedLines = append(
 				annotatedLines,
-				fmt.Sprintf(
-					"// __golines:shorten:%d",
-					length,
-				),
+				CreateAnnotation(length),
 			)
 			linesToShorten++
 		}
 
 		annotatedLines = append(annotatedLines, line)
-		prevLen = s.parseAnnotation(line)
+		prevLen = ParseAnnotation(line)
 	}
 
 	return annotatedLines, linesToShorten
@@ -258,7 +260,7 @@ func (s *Shortener) removeAnnotations(contents []byte) []byte {
 	lines := strings.Split(string(contents), "\n")
 
 	for _, line := range lines {
-		if !s.isAnnotation(line) {
+		if !IsAnnotation(line) {
 			cleanedLines = append(cleanedLines, line)
 		}
 	}
@@ -273,7 +275,7 @@ func (s *Shortener) shortenCommentsFunc(contents []byte) []byte {
 	lines := strings.Split(string(contents), "\n")
 
 	for _, line := range lines {
-		if s.isComment(line) && !s.isAnnotation(line) &&
+		if s.isComment(line) && !IsAnnotation(line) &&
 			!s.isGoDirective(line) &&
 			s.lineLen(line) > s.config.MaxLen {
 			// Try splitting up this comment line
@@ -345,27 +347,6 @@ func (s *Shortener) lineLen(line string) int {
 	return length
 }
 
-// isAnnotation determines whether the provided line is a golines annotation.
-func (s *Shortener) isAnnotation(line string) bool {
-	return strings.HasPrefix(
-		strings.Trim(line, " \t"),
-		"// __golines:shorten:",
-	)
-}
-
-// parseAnnotation pulls the line length out of the golines annotation line.
-func (s *Shortener) parseAnnotation(line string) int {
-	if s.isAnnotation(line) {
-		components := strings.SplitN(line, ":", 3)
-		val, err := strconv.Atoi(components[2])
-		if err != nil {
-			return -1
-		}
-		return val
-	}
-	return -1
-}
-
 // isComment determines whether the provided line is a non-block comment.
 func (s *Shortener) isComment(line string) bool {
 	return strings.HasPrefix(strings.Trim(line, " \t"), "//")
@@ -405,7 +386,7 @@ func (s *Shortener) formatNode(node dst.Node) {
 func (s *Shortener) formatDecl(decl dst.Decl) {
 	switch d := decl.(type) {
 	case *dst.FuncDecl:
-		if s.hasAnnotationRecursive(decl) {
+		if HasAnnotationRecursive(decl) {
 			if d.Type != nil && d.Type.Params != nil {
 				s.formatFieldList(d.Type.Params)
 			}
@@ -445,7 +426,7 @@ func (s *Shortener) formatStmt(stmt dst.Stmt) {
 		return
 	}
 
-	shouldShorten := s.hasAnnotation(stmt)
+	shouldShorten := HasAnnotation(stmt)
 
 	switch st := stmt.(type) {
 	case *dst.AssignStmt:
@@ -505,7 +486,7 @@ func (s *Shortener) formatStmt(stmt dst.Stmt) {
 // formatExpr formats an AST expression node. These include uniary and binary expressions, function
 // literals, and key/value pair statements, among others.
 func (s *Shortener) formatExpr(expr dst.Expr, force bool) {
-	shouldShorten := force || s.hasAnnotation(expr)
+	shouldShorten := force || HasAnnotation(expr)
 
 	switch e := expr.(type) {
 	case *dst.BinaryExpr:
@@ -517,7 +498,7 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool) {
 		}
 	case *dst.CallExpr:
 		for a, arg := range e.Args {
-			if shouldShorten || s.hasAnnotationRecursive(e) {
+			if shouldShorten || HasAnnotationRecursive(e) {
 				if a == 0 {
 					arg.Decorations().Before = dst.NewLine
 				} else {
@@ -549,7 +530,7 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool) {
 		}
 	case *dst.InterfaceType:
 		for _, method := range e.Methods.List {
-			if s.hasAnnotation(method) {
+			if HasAnnotation(method) {
 				s.formatExpr(method.Type, true)
 			}
 		}
@@ -575,7 +556,7 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool) {
 
 // formatSpec formats an AST spec node. These include type specifications, among other things.
 func (s *Shortener) formatSpec(spec dst.Spec) {
-	shouldShorten := s.hasAnnotation(spec)
+	shouldShorten := HasAnnotation(spec)
 
 	switch sp := spec.(type) {
 	case *dst.ValueSpec:
@@ -592,43 +573,6 @@ func (s *Shortener) formatSpec(spec dst.Spec) {
 			)
 		}
 	}
-}
-
-// hasAnnotation determines whether the given node has a golines annotation on it.
-func (s *Shortener) hasAnnotation(node dst.Node) bool {
-	startDecorations := node.Decorations().Start.All()
-	return len(startDecorations) > 0 &&
-		s.isAnnotation(startDecorations[len(startDecorations)-1])
-}
-
-// hasAnnotationRecursive determines whether the given node or one of its children has a
-// golines annotation on it. It's currently implemented for function declarations, fields,
-// and call expressions only.
-func (s *Shortener) hasAnnotationRecursive(node dst.Node) bool {
-	if s.hasAnnotation(node) {
-		return true
-	}
-
-	switch n := node.(type) {
-	case *dst.FuncDecl:
-		if n.Type != nil && n.Type.Params != nil {
-			for _, item := range n.Type.Params.List {
-				if s.hasAnnotationRecursive(item) {
-					return true
-				}
-			}
-		}
-	case *dst.Field:
-		return s.hasAnnotation(n)
-	case *dst.CallExpr:
-		for _, arg := range n.Args {
-			if s.hasAnnotation(arg) {
-				return true
-			}
-		}
-	}
-
-	return false
 }
 
 // isGenerated checks whether the provided file bytes are from a generated file.

@@ -105,6 +105,14 @@ func longLine(
 		fmt.Print("inside if statement")
 	}
 
+	fmt.Println(
+		map[string]string{
+			"key1": "a very long value",
+			"key2": "a very long value",
+			"key3": "another very long value",
+		},
+	)
+
 	return "", nil
 }
 

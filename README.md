@@ -13,22 +13,18 @@ While there are different tastes when it comes to line lengths in go, we've gene
 that very long lines are more difficult to read than their shortened alternatives. As an example:
 
 ```go
-func MyFunction(myFirstArgument string, mySecondArgument string, myThirdArgument string, myFourthArgument string, myFifthArgument string) (string, error) {
-  ...
-}
+myMap := map[string]string{"first key": "first value", "second key": "second value", "third key": "third value", "fourth key": "fourth value", "fifth key": "fifth value"}
 ```
 
 vs.
 
 ```go
-func MyFunction(
-    myFirstArgument string,
-    mySecondArgument string,
-    myThirdArgument string,
-    myFourthArgument string,
-    myFifthArgument string,
-) (string, error) {
-  ...
+myMap := map[string]string{
+	"first key": "first value",
+	"second key": "second value",
+	"third key": "third value",
+	"fourth key": "fourth value",
+	"fifth key": "fifth value",
 }
 ```
 

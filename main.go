@@ -44,6 +44,9 @@ var (
 	profile = kingpin.Flag(
 		"profile",
 		"Path to profile output").Default("").String()
+	dotFile = kingpin.Flag(
+		"dot-file",
+		"Path to dot representation of AST graph").Default("").String()
 	reformatTags = kingpin.Flag(
 		"reformat-tags",
 		"Reformat struct tags").Default("true").Bool()
@@ -95,6 +98,7 @@ func main() {
 		ShortenComments:  *shortenComments,
 		ReformatTags:     *reformatTags,
 		IgnoreGenerated:  *ignoreGenerated,
+		DotFile:          *dotFile,
 		BaseFormatterCmd: *baseFormatterCmd,
 	}
 	shortener := NewShortener(config)
