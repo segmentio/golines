@@ -13,19 +13,19 @@ While there are different tastes when it comes to line lengths in go, we've gene
 that very long lines are more difficult to read than their shortened alternatives. As an example:
 
 ```go
-return fmt.Errorf("This is an error; args are arg1=%s, arg2=%s, arg3=%s, arg4=%s", firstArgument, secondArgument, thirdArgument, fourthArgument)
+myMap := map[string]string{"first key": "first value", "second key": "second value", "third key": "third value", "fourth key": "fourth value", "fifth key": "fifth value"}
 ```
 
 vs.
 
 ```go
-return fmt.Errorf(
-	"This is an error; args are arg1=%s, arg2=%s, arg3=%s, arg4=%s",
-	firstArgument,
-	secondArgument,
-	thirdArgument,
-	fourthArgument,
-)
+myMap := map[string]string{
+	"first key": "first value",
+	"second key": "second value",
+	"third key": "third value",
+	"fourth key": "fourth value",
+	"fifth key": "fifth value",
+}
 ```
 
 We built `golines` to give go developers the option to automatically shorten long lines, like
