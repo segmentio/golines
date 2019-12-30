@@ -7,8 +7,6 @@ require (
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
 	github.com/dave/dst v0.23.1
 	github.com/dave/jennifer v1.2.0
-	github.com/davecgh/go-spew v1.1.1
-	github.com/emicklei/dot v0.10.1
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
