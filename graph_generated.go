@@ -514,6 +514,5 @@ func NodeToGraphNode(node dst.Node) *GraphNode {
 	default:
 		log.Println("Unrecognized type")
 	}
-	log.Println(gNode.Type, gNode.Value)
 	return gNode
 }
