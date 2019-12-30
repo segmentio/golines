@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-
 	"github.com/dave/dst/gendst/data"
 	. "github.com/dave/jennifer/jen"
 )
@@ -77,6 +75,11 @@ func genNodeToGraphNode() error {
 							},
 						)
 					}
+					g.Default().Block(
+						Qual("log", "Println").Call(
+							Lit("Unrecognized type"),
+						),
+					)
 				},
 			)
 
@@ -85,7 +88,6 @@ func genNodeToGraphNode() error {
 		},
 	)
 
-	f.Render(os.Stdout)
 	f.Save("../graph_generated.go")
 
 	return nil

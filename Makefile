@@ -23,6 +23,10 @@ vet:
 regenerate:
 	REGENERATE_TEST_OUTPUTS=true go test .
 
+.PHONY: graph
+graph:
+	cd generate && go run .
+
 .PHONY: vendor
 vendor:
 	go mod vendor
