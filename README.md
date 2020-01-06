@@ -34,7 +34,7 @@ the one above, according to their preferences.
 ## Examples
 
 See this [before](_fixtures/end_to_end.go) and [after](_fixtures/end_to_end__exp.go)
-view a file with very long lines. More example pairs can be found in the
+view of a file with very long lines. More example pairs can be found in the
 [`_fixtures`](_fixtures) directory.
 
 ## Usage
@@ -121,7 +121,7 @@ For each input source file, `golines` runs through the following process:
 
 1. Read the file, break it into lines
 2. Add a specially-formatted annotation (comment) to each line that's longer
-  than the configured maximum (by default, 100 columns)
+  than the configured maximum
 3. Use [Dave Brophy's](https://github.com/dave) excellent
   [decorated syntax tree](https://github.com/dave/dst) library to parse the code
   plus added annotations
