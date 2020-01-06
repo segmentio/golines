@@ -23,6 +23,9 @@ var (
 	debug = kingpin.Flag(
 		"debug",
 		"Show debug output").Short('d').Default("false").Bool()
+	dotFile = kingpin.Flag(
+		"dot-file",
+		"Path to dot representation of AST graph").Default("").String()
 	dryRun = kingpin.Flag(
 		"dry-run",
 		"Show diffs without writing anything").Default("false").Bool()
@@ -44,9 +47,6 @@ var (
 	profile = kingpin.Flag(
 		"profile",
 		"Path to profile output").Default("").String()
-	dotFile = kingpin.Flag(
-		"dot-file",
-		"Path to dot representation of AST graph").Default("").String()
 	reformatTags = kingpin.Flag(
 		"reformat-tags",
 		"Reformat struct tags").Default("true").Bool()
