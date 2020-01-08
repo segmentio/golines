@@ -57,6 +57,7 @@ type Shortener struct {
 	baseFormatterArgs []string
 }
 
+// NewShortener creates a new shortener instance from the provided config.
 func NewShortener(config ShortenerConfig) *Shortener {
 	var formatterComponents []string
 
