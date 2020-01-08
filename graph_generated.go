@@ -3,8 +3,9 @@
 package main
 
 import (
-	dst "github.com/dave/dst"
 	"log"
+
+	dst "github.com/dave/dst"
 )
 
 func NodeToGraphNode(node dst.Node) *GraphNode {

@@ -13,7 +13,8 @@ build:
 
 .PHONY: test
 test: vet
-	go test -count=1 .
+	go test -count=1 -cover -coverprofile=coverage.out .
+	go tool cover -func=coverage.out
 
 .PHONY: vet
 vet:
