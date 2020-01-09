@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"io/ioutil"
 	"strings"
 	"testing"
 
@@ -48,19 +47,4 @@ func TestCreateDot(t *testing.T) {
 	err = CreateDot(node, out)
 
 	assert.Equal(t, strings.TrimSpace(expDot), string(out.Bytes()))
-}
-
-func TestCreateDotLarge(t *testing.T) {
-	codeBytes, err := ioutil.ReadFile("_fixtures/end_to_end.go")
-	assert.Nil(t, err)
-
-	node, err := decorator.Parse(codeBytes)
-	assert.Nil(t, err)
-
-	out := &bytes.Buffer{}
-	err = CreateDot(node, out)
-	outStr := strings.TrimSpace(string(out.Bytes()))
-
-	assert.Equal(t, true, strings.HasPrefix(outStr, "digraph {"))
-	assert.Equal(t, true, strings.HasSuffix(outStr, "}"))
 }

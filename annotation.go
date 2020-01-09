@@ -10,14 +10,16 @@ import (
 
 const annotationPrefix = "// __golines:shorten:"
 
+// CreateAnnotation generates the text of a comment that will annotate long lines.
 func CreateAnnotation(length int) string {
 	return fmt.Sprintf(
-		"%s:%d",
+		"%s%d",
 		annotationPrefix,
 		length,
 	)
 }
 
+// IsAnnotation determines whether the given line is an annotation created with CreateAnnotation.
 func IsAnnotation(line string) bool {
 	return strings.HasPrefix(
 		strings.Trim(line, " \t"),
@@ -25,6 +27,7 @@ func IsAnnotation(line string) bool {
 	)
 }
 
+// HasAnnotation determines whether the given AST node has a line length annotation on it.
 func HasAnnotation(node dst.Node) bool {
 	startDecorations := node.Decorations().Start.All()
 	return len(startDecorations) > 0 &&
@@ -61,6 +64,8 @@ func HasAnnotationRecursive(node dst.Node) bool {
 	return false
 }
 
+// ParseAnnotation returns the line length encoded in a golines annotation. If none is found,
+// it returns -1.
 func ParseAnnotation(line string) int {
 	if IsAnnotation(line) {
 		components := strings.SplitN(line, ":", 3)

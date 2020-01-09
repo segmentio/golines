@@ -73,7 +73,7 @@ func shortFunc(a int, b int) error {
 	}
 
 	if a > 5 {
-		panic(fmt.Sprintf(">>>>>>>>>>>>>>>>>>> %s %s %s", "really long argument", "another really long argument", "a third really long arguement"))
+		panic(fmt.Sprintf(">>>>>>>>>>>>>>>>>>> %s %s %s %s", "really long argument", "another really long argument", "a third really long arguement", abc[1:2]))
 	}
 
 	return nil

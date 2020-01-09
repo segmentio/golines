@@ -1,5 +1,7 @@
 package fixtures
 
+import "fmt"
+
 type MyEmptyInterface interface{}
 
 type MyInterface2 interface {
@@ -12,4 +14,15 @@ type MyInterface2 interface {
 		argument6 string,
 	) (string, error)
 	shortFunc(x int, y int) error
+}
+
+func interfaceFuncs() {
+	var m MyEmptyInterface
+	_, ok := m.(MyInterface2)
+	fmt.Println(ok)
+
+	switch m.(type) {
+	case MyEmptyInterface:
+		fmt.Println("Got MyEmptyInterface")
+	}
 }

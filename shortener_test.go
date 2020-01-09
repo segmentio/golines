@@ -36,6 +36,12 @@ func TestShortener(t *testing.T) {
 		)
 	}
 
+	dotDir, err := ioutil.TempDir("", "dot")
+	if err != nil {
+		t.Fatalf("Error creating output directory for dot files: %+v", err)
+	}
+	defer os.RemoveAll(dotDir)
+
 	shortener := NewShortener(
 		ShortenerConfig{
 			MaxLen:           100,
@@ -45,6 +51,7 @@ func TestShortener(t *testing.T) {
 			ReformatTags:     true,
 			IgnoreGenerated:  true,
 			BaseFormatterCmd: "gofmt",
+			DotFile:          filepath.Join(dotDir, "out.dot"),
 		},
 	)
 
