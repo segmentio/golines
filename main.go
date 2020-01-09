@@ -69,7 +69,6 @@ var (
 
 func main() {
 	kingpin.Parse()
-
 	if *debug {
 		log.SetLevel(log.DebugLevel)
 	} else {
@@ -91,6 +90,13 @@ func main() {
 		ForceFormatting: true,
 	})
 
+	err := run()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func run() error {
 	config := ShortenerConfig{
 		MaxLen:           *maxLen,
 		TabLen:           *tabLen,
@@ -107,30 +113,30 @@ func main() {
 		// Read input from stdin
 		contents, err := ioutil.ReadAll(os.Stdin)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		result, err := shortener.Shorten(contents)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 		err = handleOutput("", contents, result)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 	} else {
 		// Read inputs from paths provided in arguments
 		for _, path := range *paths {
 			switch info, err := os.Stat(path); {
 			case err != nil:
-				log.Fatal(err)
+				return err
 			case info.IsDir():
 				// Path is a directory- walk it
 				err = filepath.Walk(
 					path,
 					func(subPath string, subInfo os.FileInfo, err error) error {
 						if err != nil {
-							log.Fatal(err)
+							return err
 						}
 
 						components := strings.Split(subPath, "/")
@@ -146,11 +152,11 @@ func main() {
 							// Shorten file and generate output
 							contents, result, err := processFile(shortener, subPath)
 							if err != nil {
-								log.Fatal(err)
+								return err
 							}
 							err = handleOutput(subPath, contents, result)
 							if err != nil {
-								log.Fatal(err)
+								return err
 							}
 						}
 
@@ -158,21 +164,23 @@ func main() {
 					},
 				)
 				if err != nil {
-					log.Fatal(err)
+					return err
 				}
 			default:
 				// Path is a file
 				contents, result, err := processFile(shortener, path)
 				if err != nil {
-					log.Fatal(err)
+					return err
 				}
 				err = handleOutput(path, contents, result)
 				if err != nil {
-					log.Fatal(err)
+					return err
 				}
 			}
 		}
 	}
+
+	return nil
 }
 
 // processFile uses the provided Shortener instance to shorten the lines
