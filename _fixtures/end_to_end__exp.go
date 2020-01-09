@@ -151,6 +151,8 @@ func shortFunc(a int, b int) error {
 		)
 	}
 
+	fmt.Println(abc[1:2])
+
 	return nil
 	// This is an end decoration
 }

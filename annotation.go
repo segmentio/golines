@@ -13,7 +13,7 @@ const annotationPrefix = "// __golines:shorten:"
 // CreateAnnotation generates the text of a comment that will annotate long lines.
 func CreateAnnotation(length int) string {
 	return fmt.Sprintf(
-		"%s:%d",
+		"%s%d",
 		annotationPrefix,
 		length,
 	)
