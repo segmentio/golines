@@ -45,6 +45,7 @@ func TestCreateDot(t *testing.T) {
 
 	out := &bytes.Buffer{}
 	err = CreateDot(node, out)
+	assert.Nil(t, err)
 
 	assert.Equal(t, strings.TrimSpace(expDot), string(out.Bytes()))
 }
