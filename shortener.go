@@ -293,7 +293,7 @@ func (s *Shortener) shortenCommentsFunc(contents []byte) []byte {
 			// Take the words in the comment and spread them out
 			// across multiple lines.
 			for _, word := range words {
-				if currLineLen+1+len(word) > maxCommentLen {
+				if currLineLen > 0 && currLineLen+1+len(word) > maxCommentLen {
 					cleanedLines = append(
 						cleanedLines,
 						fmt.Sprintf(

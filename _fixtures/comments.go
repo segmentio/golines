@@ -22,6 +22,14 @@ func testFunc() {
 		if i > 5 {
 			// This is a another really, really long comment on a single line. We should try to break it up if possible because it's longer than 100 chars.
 			fmt.Print("hello")
+
+			// These are comments like the ones in https://github.com/segmentio/golines/issues/9
+			//
+			// Documentation: https://swagger.io/docs/specification/authentication/bearer-authentication/more/more/more/more/more
+			//
+			// More documentation:
+			// https://swagger.io/docs/specification/authentication/bearer-authentication/more/more/more/more/more
+			fmt.Println("Hello again")
 		}
 	}
 }
