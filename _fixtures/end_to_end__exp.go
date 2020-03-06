@@ -85,8 +85,8 @@ func longLine(
 
 	fmt.Println(z)
 
-	// This is a really long comment on an indented line. Do you think we can split it up or should we
-	// just leave it as is?
+	// This is a really long comment on an indented line. Do you think we can split it up or should
+	// we just leave it as is?
 	if argument4 == "5" {
 		return "", fmt.Errorf(
 			"a very long query with ID %d failed. Check Query History in AWS UI",
