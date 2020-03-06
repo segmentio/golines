@@ -52,7 +52,7 @@ var (
 		"Reformat struct tags").Default("true").Bool()
 	shortenComments = kingpin.Flag(
 		"shorten-comments",
-		"Shorten single-line comments").Default("false").Bool()
+		"Shorten single-line comments").Default("false").Short('s').Bool()
 	tabLen = kingpin.Flag(
 		"tab-len",
 		"Length of a tab").Short('t').Default("4").Int()
