@@ -3,7 +3,7 @@ package fixtures
 import "fmt"
 
 // Short prefix
-// This is a really, really long comment on a single line. We should try to break it up if possible because it's longer than 100 chars.
+// This is a really, really long comment on a single line. We should try to break it up if possible because it's longer than 100 chars. In fact, it's so long that it should probably be on three lines instead of two. Wow, so long!!
 // Short suffix
 //
 

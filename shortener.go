@@ -282,7 +282,7 @@ func (s *Shortener) shortenCommentsFunc(contents []byte) []byte {
 			// Try splitting up this comment line
 			start := strings.Index(line, "//")
 			prefix := line[0:(start + 2)]
-			maxCommentLen := s.config.MaxLen - s.lineLen(prefix) + 1
+			maxCommentLen := s.config.MaxLen - s.lineLen(prefix) - 1
 
 			trimmedLine := strings.Trim(line[(start+2):], " ")
 			words := strings.Split(trimmedLine, " ")
