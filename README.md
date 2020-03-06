@@ -121,7 +121,7 @@ let g:go_fmt_options = {
 2. Select the "Preferences: Open Settings (JSON)" command
 3. Add the following key/value pairs into the settings file:
 
-```json
+```
 {
     ...
     "go.formatTool": "gofmt",
