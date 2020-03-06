@@ -122,17 +122,14 @@ let g:go_fmt_options = {
 3. Add the following key/value pairs into the settings file:
 
 ```
-{
-    ...
-    "go.formatTool": "gofmt",
-    "go.alternateTools": {
-        "gofmt": "golines",
-    },
-    "go.languageServerExperimentalFeatures": {
-        "format": false,
-        "diagnostics": true,
-        "documentLink": true
-    }
+"go.formatTool": "gofmt",
+"go.alternateTools": {
+    "gofmt": "golines",
+},
+"go.languageServerExperimentalFeatures": {
+    "format": false,
+    "diagnostics": true,
+    "documentLink": true
 }
 ```
 
