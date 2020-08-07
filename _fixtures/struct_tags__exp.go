@@ -1,5 +1,7 @@
 package fixtures
 
+import "fmt"
+
 type MyStruct struct {
 	Field1 string `json:"field1" info:"something"`
 
@@ -18,4 +20,16 @@ type MyStruct2 struct {
 	Field3      string `json:"field3"`
 	Field4      string
 	Field5      string `json:"something else"`
+}
+
+func myfunc() {
+	s := 4
+
+	type Struct3 struct {
+		Field1 string `json:"field1"            info:"something"`
+		Field2 string `json:"field2 long value" info:"third thing"`
+	}
+
+	s2 := Struct3{}
+	fmt.Println(s, s2)
 }

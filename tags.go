@@ -71,7 +71,6 @@ func alignTags(fields []*dst.Field) {
 		if tagValue[0] != '`' || tagValue[len(tagValue)-1] != '`' {
 			continue
 		}
-
 		tagValue = tagValue[1 : len(tagValue)-1]
 
 		subTags, err := structtag.Parse(string(tagValue))

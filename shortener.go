@@ -453,6 +453,8 @@ func (s *Shortener) formatStmt(stmt dst.Stmt) {
 		for _, stmt := range st.Body {
 			s.formatStmt(stmt)
 		}
+	case *dst.DeclStmt:
+		s.formatDecl(st.Decl)
 	case *dst.DeferStmt:
 		s.formatExpr(st.Call, shouldShorten)
 	case *dst.ExprStmt:
