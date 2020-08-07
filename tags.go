@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/dave/dst"
+	"github.com/fatih/structtag"
 )
 
-var tagKeyRegexp = regexp.MustCompile("([a-zA-Z0-9_-]+):")
 var structTagRegexp = regexp.MustCompile("`([ ]*[a-zA-Z0-9_-]+:\".*\"[ ]*){2,}`")
 
 // HasMultiKeyTags returns whether the given lines have a multikey struct line.
@@ -73,13 +73,16 @@ func alignTags(fields []*dst.Field) {
 		}
 
 		tagValue = tagValue[1 : len(tagValue)-1]
+
+		subTags, err := structtag.Parse(string(tagValue))
+		if err != nil {
+			return
+		}
+		subTagKeys := subTags.Keys()
+
 		structTag := reflect.StructTag(tagValue)
 
-		keyMatches := tagKeyRegexp.FindAllStringSubmatch(tagValue, -1)
-
-		for _, keyMatch := range keyMatches {
-			key := keyMatch[1]
-
+		for _, key := range subTagKeys {
 			value := structTag.Get(key)
 
 			// Tag is key, value, and some extra chars (two quotes + one colon)
