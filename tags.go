@@ -86,7 +86,7 @@ func alignTags(fields []*dst.Field) {
 		}
 		tagValue = tagValue[1 : len(tagValue)-1]
 
-		subTags, err := structtag.Parse(string(tagValue))
+		subTags, err := structtag.Parse(tagValue)
 		if err != nil {
 			return
 		}
