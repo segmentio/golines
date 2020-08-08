@@ -64,3 +64,9 @@ type Struct9 struct {
 	Field1   MyStruct `json:"field"`
 	MyStruct `         json:"field"`
 }
+
+type Struct10 struct {
+	Field1   func(int, int) string `json:"field" info:"value"`
+	Field2   string                `             info:"value2"`
+	MyStruct `json:"field" info:"value3"`
+}
