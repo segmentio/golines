@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/dave/dst"
+	"github.com/fatih/structtag"
 )
 
-var tagKeyRegexp = regexp.MustCompile("([a-zA-Z0-9_-]+):")
 var structTagRegexp = regexp.MustCompile("`([ ]*[a-zA-Z0-9_-]+:\".*\"[ ]*){2,}`")
 
 // HasMultiKeyTags returns whether the given lines have a multikey struct line.
@@ -59,8 +59,21 @@ func alignTags(fields []*dst.Field) {
 	tagKeys := []string{}
 	tagKVs := make([]map[string]string, len(fields))
 
+	maxTypeWidth := 0
+	invalidWidths := false
+
 	// First, scan over all field tags so that we can understand their values and widths
 	for f, field := range fields {
+		if len(field.Names) > 0 {
+			typeWidth, err := getWidth(field.Type)
+			if err != nil {
+				// We couldn't figure out the proper width of this field
+				invalidWidths = true
+			} else if typeWidth > maxTypeWidth {
+				maxTypeWidth = typeWidth
+			}
+		}
+
 		if field.Tag == nil {
 			continue
 		}
@@ -71,15 +84,17 @@ func alignTags(fields []*dst.Field) {
 		if tagValue[0] != '`' || tagValue[len(tagValue)-1] != '`' {
 			continue
 		}
-
 		tagValue = tagValue[1 : len(tagValue)-1]
+
+		subTags, err := structtag.Parse(tagValue)
+		if err != nil {
+			return
+		}
+		subTagKeys := subTags.Keys()
+
 		structTag := reflect.StructTag(tagValue)
 
-		keyMatches := tagKeyRegexp.FindAllStringSubmatch(tagValue, -1)
-
-		for _, keyMatch := range keyMatches {
-			key := keyMatch[1]
-
+		for _, key := range subTagKeys {
 			value := structTag.Get(key)
 
 			// Tag is key, value, and some extra chars (two quotes + one colon)
@@ -108,6 +123,15 @@ func alignTags(fields []*dst.Field) {
 
 		tagComponents := []string{}
 
+		if len(field.Names) == 0 && maxTypeWidth > 0 && !invalidWidths {
+			// Add extra spacing at beginning so that tag aligns with named field tags
+			tagComponents = append(tagComponents, "")
+
+			for i := 0; i < maxTypeWidth; i++ {
+				tagComponents[len(tagComponents)-1] += " "
+			}
+		}
+
 		for _, key := range tagKeys {
 			value, ok := tagKVs[f][key]
 			lenUsed := 0
@@ -119,14 +143,69 @@ func alignTags(fields []*dst.Field) {
 				tagComponents = append(tagComponents, "")
 			}
 
-			lenRemaining := maxTagWidths[key] - lenUsed
+			if len(field.Names) > 0 || !invalidWidths {
+				lenRemaining := maxTagWidths[key] - lenUsed
 
-			for i := 0; i < lenRemaining; i++ {
-				tagComponents[len(tagComponents)-1] += " "
+				for i := 0; i < lenRemaining; i++ {
+					tagComponents[len(tagComponents)-1] += " "
+				}
 			}
 		}
 
 		updatedTagValue := strings.TrimRight(strings.Join(tagComponents, " "), " ")
 		field.Tag.Value = fmt.Sprintf("`%s`", updatedTagValue)
 	}
+}
+
+// getWidth tries to guess the formatted width of a dst node expression. If this isn't (yet)
+// possible, it returns an error.
+func getWidth(node dst.Node) (int, error) {
+	switch n := node.(type) {
+	case *dst.ArrayType:
+		eltWidth, err := getWidth(n.Elt)
+		if err != nil {
+			return 0, err
+		}
+
+		return 2 + eltWidth, nil
+	case *dst.ChanType:
+		valWidth, err := getWidth(n.Value)
+		if err != nil {
+			return 0, err
+		}
+
+		isSend := n.Dir&dst.SEND > 0
+		isRecv := n.Dir&dst.RECV > 0
+
+		if isSend && isRecv {
+			// Channel does not include an arrow
+			return 5 + valWidth, nil
+		}
+
+		// Channel includes an arrow
+		return 7 + valWidth, nil
+	case *dst.Ident:
+		return len(n.Name), nil
+	case *dst.MapType:
+		keyWidth, err := getWidth(n.Key)
+		if err != nil {
+			return 0, err
+		}
+
+		valWidth, err := getWidth(n.Value)
+		if err != nil {
+			return 0, err
+		}
+
+		return 5 + keyWidth + valWidth, nil
+	case *dst.StarExpr:
+		xWidth, err := getWidth(n.X)
+		if err != nil {
+			return 0, err
+		}
+
+		return 1 + xWidth, nil
+	}
+
+	return 0, fmt.Errorf("Could not get width of node %+v", node)
 }
