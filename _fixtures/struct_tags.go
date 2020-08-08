@@ -60,11 +60,15 @@ type Struct8 struct {
 	MyStruct `json:"field"`
 }
 
+// Formatting of tags after nameless field isn't handled perfectly
 type Struct9 struct {
+	Field0   int      `json:"field"`
 	Field1   MyStruct `json:"field"`
 	MyStruct `json:"field"`
+	Field2   string `json:"field"`
 }
 
+// Width of function types isn't supported, so MyStruct tags will not be aligned
 type Struct10 struct {
 	Field1   func(int, int) string `json:"field" info:"value"`
 	Field2   string                `info:"value2"`
