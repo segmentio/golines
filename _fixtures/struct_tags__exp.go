@@ -60,7 +60,7 @@ type Struct8 struct {
 	MyStruct `         json:"field"`
 }
 
-// Formatting of tags after nameless field isn't handled perfectly
+// Formatting of tags after embedded field isn't handled perfectly
 type Struct9 struct {
 	Field0   int      `json:"field"`
 	Field1   MyStruct `json:"field"`
