@@ -35,8 +35,8 @@ myMap := map[string]string{
 We built `golines` to give go developers the option to automatically shorten long lines, like
 the one above, according to their preferences.
 
-See [this blog post](https://yolken.net/blog/cleaner-go-code-golines) for more background and
-technical details.
+More background and technical details are available in
+[this blog post](https://yolken.net/blog/cleaner-go-code-golines).
 
 ## Examples
 
