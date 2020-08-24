@@ -160,7 +160,7 @@ For each input source file, `golines` runs through the following process:
 7. Run the base formatter (e.g., `gofmt`) over the results, write these to either
   stdout or the source file
 
-See [our blog post](https://yolken.net/blog/cleaner-go-code-golines) for more technical details.
+See [this blog post](https://yolken.net/blog/cleaner-go-code-golines) for more technical details.
 
 ## Limitations
 
