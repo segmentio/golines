@@ -120,23 +120,24 @@ let g:go_fmt_options = {
 
 ### Visual Studio Code
 
-1. Click on "View", then "Command Palette"
-2. Select the "Preferences: Open Settings (JSON)" command
-3. Add the following key/value pairs into the settings file:
+1. Install the [Run on Save](https://marketplace.visualstudio.com/items?itemName=emeraldwalk.RunOnSave) extension
+2. Go into the VSCode settings menu, scroll down to the section for the "Run on Save"
+  extension, click the "Edit in settings.json" link
+3. Set the `emeraldwalk.runonsave` key as follows (adding other flags to the `golines`
+  command as desired):
 
 ```
-"go.formatTool": "gofmt",
-"go.alternateTools": {
-    "gofmt": "golines",
-},
-"go.languageServerExperimentalFeatures": {
-    "format": false,
-    "diagnostics": true,
-    "documentLink": true
-}
+    "emeraldwalk.runonsave": {
+        "commands": [
+            {
+                "match": "\\.go$",
+                "cmd": "golines ${file} -w"
+            }
+        ]
+    }
 ```
 
-4. Save the settings and restart vscode
+4. Save the settings and restart VSCode
 
 ### Others
 
