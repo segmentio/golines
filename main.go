@@ -15,6 +15,10 @@ import (
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
+const (
+	versionStr = "0.1.0"
+)
+
 var (
 	// Flags
 	baseFormatterCmd = kingpin.Flag(
@@ -56,6 +60,9 @@ var (
 	tabLen = kingpin.Flag(
 		"tab-len",
 		"Length of a tab").Short('t').Default("4").Int()
+	version = kingpin.Flag(
+		"version",
+		"Print out version and exit").Default("false").Bool()
 	writeOutput = kingpin.Flag(
 		"write-output",
 		"Write output to source instead of stdout").Short('w').Default("false").Bool()
@@ -73,6 +80,11 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	} else {
 		log.SetLevel(log.InfoLevel)
+	}
+
+	if *version {
+		fmt.Printf("golines v%s\n", versionStr)
+		return
 	}
 
 	if *profile != "" {
