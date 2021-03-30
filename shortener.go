@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"go/format"
@@ -579,19 +580,19 @@ func (s *Shortener) formatSpec(spec dst.Spec) {
 }
 
 // isGenerated checks whether the provided file bytes are from a generated file.
-// This is done by looking for a set of typically-used strings in the first 80 characters.
+// This is done by looking for a set of typically-used strings in the first 5 lines.
 func (s *Shortener) isGenerated(contents []byte) bool {
-	var head string
+	scanner := bufio.NewScanner(bytes.NewBuffer(contents))
 
-	if len(contents) > 80 {
-		head = strings.ToLower(string(contents[0:80]))
-	} else {
-		head = strings.ToLower(string(contents))
-	}
+	for i := 0; scanner.Scan(); i++ {
+		if i >= 5 {
+			return false
+		}
 
-	for _, term := range generatedTerms {
-		if strings.Index(head, term) >= 0 {
-			return true
+		for _, term := range generatedTerms {
+			if strings.Contains(strings.ToLower(scanner.Text()), term) {
+				return true
+			}
 		}
 	}
 
