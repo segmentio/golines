@@ -511,13 +511,15 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 			e.Decorations().After = dst.NewLine
 
 			for _, arg := range e.Args {
-				s.formatExpr(arg, shouldShorten, true)
+				s.formatExpr(arg, false, true)
 			}
 
 			s.formatExpr(e.Fun, shouldShorten, true)
 		} else {
+			shortenChildArgs := shouldShorten || HasAnnotationRecursive(e)
+
 			for a, arg := range e.Args {
-				if shouldShorten || HasAnnotationRecursive(e) {
+				if shortenChildArgs {
 					if a == 0 {
 						arg.Decorations().Before = dst.NewLine
 					} else {
