@@ -41,6 +41,7 @@ type ShortenerConfig struct {
 	ReformatTags    bool   // Whether to reformat struct tags in addition to shortening long lines
 	IgnoreGenerated bool   // Whether to ignore generated files
 	DotFile         string // Path to write dot-formatted output to (for debugging only)
+	ChainMethods    bool   // Whether to chain methods by putting dots at ends of lines
 
 	// Formatter that will be run before and after main shortening process. If empty,
 	// defaults to goimports (if found), otherwise gofmt.
@@ -368,7 +369,7 @@ func (s *Shortener) formatNode(node dst.Node) {
 		s.formatDecl(n)
 	case dst.Expr:
 		log.Debugf("Processing expression: %+v", n)
-		s.formatExpr(n, false)
+		s.formatExpr(n, false, false)
 	case dst.Stmt:
 		log.Debugf("Processing statement: %+v", n)
 		s.formatStmt(n)
@@ -433,7 +434,7 @@ func (s *Shortener) formatStmt(stmt dst.Stmt) {
 	switch st := stmt.(type) {
 	case *dst.AssignStmt:
 		for _, expr := range st.Rhs {
-			s.formatExpr(expr, shouldShorten)
+			s.formatExpr(expr, shouldShorten, false)
 		}
 	case *dst.BlockStmt:
 		for _, stmt := range st.List {
@@ -443,7 +444,7 @@ func (s *Shortener) formatStmt(stmt dst.Stmt) {
 		if shouldShorten {
 			for _, arg := range st.List {
 				arg.Decorations().After = dst.NewLine
-				s.formatExpr(arg, false)
+				s.formatExpr(arg, false, false)
 			}
 		}
 
@@ -457,21 +458,21 @@ func (s *Shortener) formatStmt(stmt dst.Stmt) {
 	case *dst.DeclStmt:
 		s.formatDecl(st.Decl)
 	case *dst.DeferStmt:
-		s.formatExpr(st.Call, shouldShorten)
+		s.formatExpr(st.Call, shouldShorten, false)
 	case *dst.ExprStmt:
-		s.formatExpr(st.X, shouldShorten)
+		s.formatExpr(st.X, shouldShorten, false)
 	case *dst.ForStmt:
 		s.formatStmt(st.Body)
 	case *dst.GoStmt:
-		s.formatExpr(st.Call, shouldShorten)
+		s.formatExpr(st.Call, shouldShorten, false)
 	case *dst.IfStmt:
-		s.formatExpr(st.Cond, shouldShorten)
+		s.formatExpr(st.Cond, shouldShorten, false)
 		s.formatStmt(st.Body)
 	case *dst.RangeStmt:
 		s.formatStmt(st.Body)
 	case *dst.ReturnStmt:
 		for _, expr := range st.Results {
-			s.formatExpr(expr, shouldShorten)
+			s.formatExpr(expr, shouldShorten, false)
 		}
 	case *dst.SelectStmt:
 		s.formatStmt(st.Body)
@@ -489,7 +490,7 @@ func (s *Shortener) formatStmt(stmt dst.Stmt) {
 
 // formatExpr formats an AST expression node. These include uniary and binary expressions, function
 // literals, and key/value pair statements, among others.
-func (s *Shortener) formatExpr(expr dst.Expr, force bool) {
+func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 	shouldShorten := force || HasAnnotation(expr)
 
 	switch e := expr.(type) {
@@ -497,22 +498,37 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool) {
 		if (e.Op == token.LAND || e.Op == token.LOR) && shouldShorten {
 			e.Y.Decorations().Before = dst.NewLine
 		} else {
-			s.formatExpr(e.X, shouldShorten)
-			s.formatExpr(e.Y, shouldShorten)
+			s.formatExpr(e.X, shouldShorten, isChain)
+			s.formatExpr(e.Y, shouldShorten, isChain)
 		}
 	case *dst.CallExpr:
-		for a, arg := range e.Args {
-			if shouldShorten || HasAnnotationRecursive(e) {
-				if a == 0 {
-					arg.Decorations().Before = dst.NewLine
-				} else {
-					arg.Decorations().After = dst.None
-				}
-				arg.Decorations().After = dst.NewLine
+		_, ok := e.Fun.(*dst.SelectorExpr)
+
+		if ok &&
+			s.config.ChainMethods &&
+			(shouldShorten || HasAnnotationRecursive(e)) &&
+			(isChain || s.chainLength(e) > 1) {
+			e.Decorations().After = dst.NewLine
+
+			for _, arg := range e.Args {
+				s.formatExpr(arg, shouldShorten, true)
 			}
-			s.formatExpr(arg, false)
+
+			s.formatExpr(e.Fun, shouldShorten, true)
+		} else {
+			for a, arg := range e.Args {
+				if shouldShorten || HasAnnotationRecursive(e) {
+					if a == 0 {
+						arg.Decorations().Before = dst.NewLine
+					} else {
+						arg.Decorations().After = dst.None
+					}
+					arg.Decorations().After = dst.NewLine
+				}
+				s.formatExpr(arg, false, isChain)
+			}
+			s.formatExpr(e.Fun, shouldShorten, isChain)
 		}
-		s.formatExpr(e.Fun, shouldShorten)
 	case *dst.CompositeLit:
 		if shouldShorten {
 			for i, element := range e.Elts {
@@ -524,7 +540,7 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool) {
 		}
 
 		for _, element := range e.Elts {
-			s.formatExpr(element, false)
+			s.formatExpr(element, false, isChain)
 		}
 	case *dst.FuncLit:
 		s.formatStmt(e.Body)
@@ -535,19 +551,19 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool) {
 	case *dst.InterfaceType:
 		for _, method := range e.Methods.List {
 			if HasAnnotation(method) {
-				s.formatExpr(method.Type, true)
+				s.formatExpr(method.Type, true, isChain)
 			}
 		}
 	case *dst.KeyValueExpr:
-		s.formatExpr(e.Value, shouldShorten)
+		s.formatExpr(e.Value, shouldShorten, isChain)
 	case *dst.SelectorExpr:
-		s.formatExpr(e.X, shouldShorten)
+		s.formatExpr(e.X, shouldShorten, isChain)
 	case *dst.StructType:
 		if s.config.ReformatTags {
 			FormatStructTags(e.Fields)
 		}
 	case *dst.UnaryExpr:
-		s.formatExpr(e.X, shouldShorten)
+		s.formatExpr(e.X, shouldShorten, isChain)
 	default:
 		if shouldShorten {
 			log.Debugf(
@@ -565,10 +581,10 @@ func (s *Shortener) formatSpec(spec dst.Spec) {
 	switch sp := spec.(type) {
 	case *dst.ValueSpec:
 		for _, expr := range sp.Values {
-			s.formatExpr(expr, shouldShorten)
+			s.formatExpr(expr, shouldShorten, false)
 		}
 	case *dst.TypeSpec:
-		s.formatExpr(sp.Type, false)
+		s.formatExpr(sp.Type, false, false)
 	default:
 		if shouldShorten {
 			log.Debugf(
@@ -597,4 +613,24 @@ func (s *Shortener) isGenerated(contents []byte) bool {
 	}
 
 	return false
+}
+
+// chainLength determines the length of the function call chain in an expression.
+func (s *Shortener) chainLength(callExpr *dst.CallExpr) int {
+	numCalls := 1
+	currCall := callExpr
+
+	for {
+		selectorExpr, ok := currCall.Fun.(*dst.SelectorExpr)
+		if !ok {
+			break
+		}
+		currCall, ok = selectorExpr.X.(*dst.CallExpr)
+		if !ok {
+			break
+		}
+		numCalls++
+	}
+
+	return numCalls
 }

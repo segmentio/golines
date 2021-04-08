@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	versionStr = "0.2.0"
+	versionStr = "0.3.0"
 )
 
 var (
@@ -24,6 +24,9 @@ var (
 	baseFormatterCmd = kingpin.Flag(
 		"base-formatter",
 		"Base formatter to use").Default("").String()
+	chainMethods = kingpin.Flag(
+		"chain-methods",
+		"Chain methods by putting dots at end of lines").Default("false").Bool()
 	debug = kingpin.Flag(
 		"debug",
 		"Show debug output").Short('d').Default("false").Bool()
@@ -118,6 +121,7 @@ func run() error {
 		IgnoreGenerated:  *ignoreGenerated,
 		DotFile:          *dotFile,
 		BaseFormatterCmd: *baseFormatterCmd,
+		ChainMethods:     *chainMethods,
 	}
 	shortener := NewShortener(config)
 
