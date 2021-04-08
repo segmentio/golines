@@ -26,7 +26,7 @@ var (
 		"Base formatter to use").Default("").String()
 	chainMethods = kingpin.Flag(
 		"chain-methods",
-		"Chain methods by putting dots at end of lines").Default("false").Bool()
+		"Chain methods by putting dots at end of lines").Default("true").Bool()
 	debug = kingpin.Flag(
 		"debug",
 		"Show debug output").Short('d').Default("false").Bool()
