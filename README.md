@@ -125,7 +125,6 @@ Starting in version 0.3.0, the tool now splits on the dots by default, e.g.:
 myObj.Method(arg1, arg2, arg3).
 	AnotherMethod(arg1, arg2).
 	AThirdMethod(arg1, arg2)
-)
 ```
 
 The original behavior can be used by running the tool with the `--no-chain-split-dots`
