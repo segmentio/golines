@@ -101,7 +101,7 @@ want to reformat these too, run with the `--no-ignore-generated` flag.
 
 #### Chained method splitting
 
-There are several ways to split lines that are part of
+There are several possible ways to split lines that are part of
 [method chains](https://en.wikipedia.org/wiki/Method_chaining). The original
 approach taken by `golines` was to split on the args, e.g.:
 
