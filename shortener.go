@@ -41,7 +41,7 @@ type ShortenerConfig struct {
 	ReformatTags    bool   // Whether to reformat struct tags in addition to shortening long lines
 	IgnoreGenerated bool   // Whether to ignore generated files
 	DotFile         string // Path to write dot-formatted output to (for debugging only)
-	ChainMethods    bool   // Whether to chain methods by putting dots at ends of lines
+	ChainSplitDots  bool   // Whether to split chain methods by putting dots at ends of lines
 
 	// Formatter that will be run before and after main shortening process. If empty,
 	// defaults to goimports (if found), otherwise gofmt.
@@ -505,7 +505,7 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 		_, ok := e.Fun.(*dst.SelectorExpr)
 
 		if ok &&
-			s.config.ChainMethods &&
+			s.config.ChainSplitDots &&
 			(shouldShorten || HasAnnotationRecursive(e)) &&
 			(isChain || s.chainLength(e) > 1) {
 			e.Decorations().After = dst.NewLine

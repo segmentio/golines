@@ -52,7 +52,7 @@ func TestShortener(t *testing.T) {
 			IgnoreGenerated:  true,
 			BaseFormatterCmd: "gofmt",
 			DotFile:          filepath.Join(dotDir, "out.dot"),
-			ChainMethods:     true,
+			ChainSplitDots:   true,
 		},
 	)
 

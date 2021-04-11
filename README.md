@@ -99,6 +99,38 @@ set via the `--base-formatter` flag.
 By default, the tool will not format any files that look like they're generated. If you
 want to reformat these too, run with the `--no-ignore-generated` flag.
 
+#### Chained method splitting
+
+There are several ways to split lines that are part of method chains. The original
+approach taken by `golines` was to split on the args:
+
+```go
+myObj.Method(
+  arg1,
+  arg2,
+  arg3,
+).AnotherMethod(
+  arg1,
+  arg2,
+).AThirdMethod(
+  arg1,
+  arg2,
+  arg3,
+)
+```
+
+Starting in version 0.3.0, the tool now splits on the dots by default, e.g.:
+
+```go
+myObj.Method(arg1, arg2, arg3).
+  AnotherMethod(arg1, arg2).
+  AThirdMethod(arg1, arg2, arg3)
+)
+```
+
+The original behavior can be used by running the tool with the `--no-chain-split-dots`
+flag.
+
 #### Struct tag reformatting
 
 In addition to shortening long lines, the tool also aligns struct tag keys; see the
