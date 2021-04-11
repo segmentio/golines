@@ -1,11 +1,11 @@
 module github.com/segmentio/golines
 
-go 1.13
+go 1.16
 
 require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
-	github.com/dave/dst v0.23.1
+	github.com/dave/dst v0.26.2
 	github.com/dave/jennifer v1.2.0
 	github.com/fatih/structtag v1.2.0
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
@@ -19,6 +19,5 @@ require (
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550 // indirect
 	golang.org/x/sys v0.0.0-20191024172528-b4ff53e7a1cb // indirect
-	golang.org/x/tools v0.0.0-20191024220359-3d91e92cde03 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )

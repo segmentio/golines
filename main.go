@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	versionStr = "0.2.0"
+	versionStr = "0.3.0"
 )
 
 var (
@@ -24,6 +24,10 @@ var (
 	baseFormatterCmd = kingpin.Flag(
 		"base-formatter",
 		"Base formatter to use").Default("").String()
+	chainSplitDots = kingpin.Flag(
+		"chain-split-dots",
+		"Split chained methods on the dots as opposed to the arguments").
+		Default("true").Bool()
 	debug = kingpin.Flag(
 		"debug",
 		"Show debug output").Short('d').Default("false").Bool()
@@ -118,6 +122,7 @@ func run() error {
 		IgnoreGenerated:  *ignoreGenerated,
 		DotFile:          *dotFile,
 		BaseFormatterCmd: *baseFormatterCmd,
+		ChainSplitDots:   *chainSplitDots,
 	}
 	shortener := NewShortener(config)
 

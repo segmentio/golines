@@ -36,7 +36,7 @@ func HasAnnotation(node dst.Node) bool {
 
 // HasAnnotationRecursive determines whether the given node or one of its children has a
 // golines annotation on it. It's currently implemented for function declarations, fields,
-// and call expressions only.
+// call expressions, and selector expressions only.
 func HasAnnotationRecursive(node dst.Node) bool {
 	if HasAnnotation(node) {
 		return true
@@ -51,9 +51,13 @@ func HasAnnotationRecursive(node dst.Node) bool {
 				}
 			}
 		}
-	case *dst.Field:
-		return HasAnnotation(n)
+	case *dst.SelectorExpr:
+		return HasAnnotation(n.Sel) || HasAnnotation(n.X)
 	case *dst.CallExpr:
+		if HasAnnotationRecursive(n.Fun) {
+			return true
+		}
+
 		for _, arg := range n.Args {
 			if HasAnnotation(arg) {
 				return true
