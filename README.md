@@ -101,8 +101,9 @@ want to reformat these too, run with the `--no-ignore-generated` flag.
 
 #### Chained method splitting
 
-There are several ways to split lines that are part of method chains. The original
-approach taken by `golines` was to split on the args:
+There are several ways to split lines that are part of
+[method chains](https://en.wikipedia.org/wiki/Method_chaining). The original
+approach taken by `golines` was to split on the args, e.g.:
 
 ```go
 myObj.Method(
@@ -115,7 +116,6 @@ myObj.Method(
 ).AThirdMethod(
   arg1,
   arg2,
-  arg3,
 )
 ```
 
@@ -124,7 +124,7 @@ Starting in version 0.3.0, the tool now splits on the dots by default, e.g.:
 ```go
 myObj.Method(arg1, arg2, arg3).
   AnotherMethod(arg1, arg2).
-  AThirdMethod(arg1, arg2, arg3)
+  AThirdMethod(arg1, arg2)
 )
 ```
 
