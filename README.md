@@ -107,15 +107,15 @@ approach taken by `golines` was to split on the args, e.g.:
 
 ```go
 myObj.Method(
-  arg1,
-  arg2,
-  arg3,
+	arg1,
+	arg2,
+	arg3,
 ).AnotherMethod(
-  arg1,
-  arg2,
+	arg1,
+	arg2,
 ).AThirdMethod(
-  arg1,
-  arg2,
+	arg1,
+	arg2,
 )
 ```
 
@@ -123,8 +123,8 @@ Starting in version 0.3.0, the tool now splits on the dots by default, e.g.:
 
 ```go
 myObj.Method(arg1, arg2, arg3).
-  AnotherMethod(arg1, arg2).
-  AThirdMethod(arg1, arg2)
+	AnotherMethod(arg1, arg2).
+	AThirdMethod(arg1, arg2)
 )
 ```
 
