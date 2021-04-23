@@ -2,7 +2,6 @@ package fixtures
 
 import (
 	"fmt"
-	"log"
 )
 
 func testBinaryOperators() {
@@ -12,4 +11,7 @@ func testBinaryOperators() {
 		argument2,
 		argument3,
 	)
+	y := "hello this is a big string" || "this is a small string" || "the smallest string" ||
+		"this is another big string" ||
+		"this is an even bigger string >>>"
 }
