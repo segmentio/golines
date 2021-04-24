@@ -496,7 +496,11 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 	switch e := expr.(type) {
 	case *dst.BinaryExpr:
 		if (e.Op == token.LAND || e.Op == token.LOR) && shouldShorten {
-			e.Y.Decorations().Before = dst.NewLine
+			if e.Y.Decorations().Before == dst.NewLine {
+				s.formatExpr(e.X, force, isChain)
+			} else {
+				e.Y.Decorations().Before = dst.NewLine
+			}
 		} else {
 			s.formatExpr(e.X, shouldShorten, isChain)
 			s.formatExpr(e.Y, shouldShorten, isChain)
