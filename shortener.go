@@ -375,7 +375,7 @@ func (s *Shortener) formatNode(node dst.Node) {
 		s.formatStmt(n)
 	case dst.Spec:
 		log.Debugf("Processing spec: %+v", n)
-		s.formatSpec(n)
+		s.formatSpec(n, false)
 	default:
 		log.Debugf(
 			"Got a node type that can't be shortened: %+v",
@@ -397,7 +397,7 @@ func (s *Shortener) formatDecl(decl dst.Decl) {
 		s.formatStmt(d.Body)
 	case *dst.GenDecl:
 		for _, spec := range d.Specs {
-			s.formatNode(spec)
+			s.formatSpec(spec, HasAnnotation(decl))
 		}
 	default:
 		log.Debugf(
@@ -581,9 +581,8 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 }
 
 // formatSpec formats an AST spec node. These include type specifications, among other things.
-func (s *Shortener) formatSpec(spec dst.Spec) {
-	shouldShorten := HasAnnotation(spec)
-
+func (s *Shortener) formatSpec(spec dst.Spec, force bool) {
+	shouldShorten := HasAnnotation(spec) || force
 	switch sp := spec.(type) {
 	case *dst.ValueSpec:
 		for _, expr := range sp.Values {
