@@ -4,6 +4,7 @@
 [![Coverage](https://img.shields.io/badge/Go%20Coverage-84%25-brightgreen.svg?longCache=true&style=flat)](https://gocover.io/github.com/segmentio/golines?version=1.13.x)
 
 # golines
+
 Golines is a golang formatter that shortens long lines, in addition to all
 of the formatting fixes done by [`gofmt`](https://golang.org/cmd/gofmt/).
 
@@ -49,7 +50,7 @@ view of a file with very long lines. More example pairs can be found in the
 First, install the tool:
 
 ```
-go get -u github.com/segmentio/golines
+go install github.com/segmentio/golines@latest
 ```
 
 Then, run:
