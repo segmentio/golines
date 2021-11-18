@@ -173,7 +173,7 @@ let g:go_fmt_options = {
 
 ### Goland
 
-1. Go into the Goland settings -> "Tools" -> "File Watchers" and click on the plus to create a new file watcher
+1. Go into the Goland settings and click "Tools" -> "File Watchers" then click the plus to create a new file watcher
 2. Set the following properties and confirm by clicking OK
   - __Name:__ golines
   - __File type:__ Go files
@@ -181,7 +181,7 @@ let g:go_fmt_options = {
   - __Program:__ golines
   - __Arguments:__ $FilePath$ -w
   - __Output paths to refresh:__ $FilePath$
-3. Activate your newly created file watchers in the Goland settings under "Tools" -> "Actions on save"
+3. Activate your newly created file watcher in the Goland settings under "Tools" -> "Actions on save"
 
 ### Others
 
