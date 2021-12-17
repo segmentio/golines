@@ -93,7 +93,8 @@ with the `--shorten-comments` flag.
 
 By default, the tool will use [`goimports`](https://godoc.org/golang.org/x/tools/cmd/goimports) as
 the base formatter (if found), otherwise it will revert to `gofmt`. An explicit formatter can be
-set via the `--base-formatter` flag.
+set via the `--base-formatter` flag; the command provided here should accept its input via
+`stdin` and write its output to `stdout`.
 
 #### Generated files
 
