@@ -34,6 +34,14 @@ func HasAnnotation(node dst.Node) bool {
 		IsAnnotation(startDecorations[len(startDecorations)-1])
 }
 
+// HasTailAnnotation determines whether the given AST node has a line length annotation at its
+// end. This is needed to catch long function declarations with inline interface definitions.
+func HasTailAnnotation(node dst.Node) bool {
+	endDecorations := node.Decorations().End.All()
+	return len(endDecorations) > 0 &&
+		IsAnnotation(endDecorations[len(endDecorations)-1])
+}
+
 // HasAnnotationRecursive determines whether the given node or one of its children has a
 // golines annotation on it. It's currently implemented for function declarations, fields,
 // call expressions, and selector expressions only.
@@ -51,6 +59,8 @@ func HasAnnotationRecursive(node dst.Node) bool {
 				}
 			}
 		}
+	case *dst.Field:
+		return HasTailAnnotation(n) || HasAnnotationRecursive(n.Type)
 	case *dst.SelectorExpr:
 		return HasAnnotation(n.Sel) || HasAnnotation(n.X)
 	case *dst.CallExpr:
@@ -60,6 +70,12 @@ func HasAnnotationRecursive(node dst.Node) bool {
 
 		for _, arg := range n.Args {
 			if HasAnnotation(arg) {
+				return true
+			}
+		}
+	case *dst.InterfaceType:
+		for _, field := range n.Methods.List {
+			if HasAnnotationRecursive(field) {
 				return true
 			}
 		}
