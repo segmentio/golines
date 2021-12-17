@@ -389,7 +389,11 @@ func (s *Shortener) formatNode(node dst.Node) {
 func (s *Shortener) formatDecl(decl dst.Decl) {
 	switch d := decl.(type) {
 	case *dst.FuncDecl:
+		log.Debugf("Got function declaration")
+
 		if HasAnnotationRecursive(decl) {
+			log.Debugf("Has annotation recursive")
+
 			if d.Type != nil && d.Type.Params != nil {
 				s.formatFieldList(d.Type.Params)
 			}
