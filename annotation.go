@@ -35,7 +35,7 @@ func HasAnnotation(node dst.Node) bool {
 }
 
 // HasTailAnnotation determines whether the given AST node has a line length annotation at its
-// end. This is needed to catch long function declarations with inline interface defintions.
+// end. This is needed to catch long function declarations with inline interface definitions.
 func HasTailAnnotation(node dst.Node) bool {
 	endDecorations := node.Decorations().End.All()
 	return len(endDecorations) > 0 &&
