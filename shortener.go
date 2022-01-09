@@ -275,25 +275,23 @@ func (s *Shortener) removeAnnotations(contents []byte) []byte {
 // in the repo README, this functionality has some quirks and is disabled by default.
 func (s *Shortener) shortenCommentsFunc(contents []byte) []byte {
 	cleanedLines := []string{}
+	words := []string{} // all words in a contiguous sequence of long comments
+	prefix := ""
 	lines := strings.Split(string(contents), "\n")
-
 	for _, line := range lines {
 		if s.isComment(line) && !IsAnnotation(line) &&
 			!s.isGoDirective(line) &&
 			s.lineLen(line) > s.config.MaxLen {
-			// Try splitting up this comment line
 			start := strings.Index(line, "//")
-			prefix := line[0:(start + 2)]
-			maxCommentLen := s.config.MaxLen - s.lineLen(prefix) - 1
-
+			prefix = line[0:(start + 2)]
 			trimmedLine := strings.Trim(line[(start+2):], " ")
-			words := strings.Split(trimmedLine, " ")
-
-			currLineWords := []string{}
+			currLineWords := strings.Split(trimmedLine, " ")
+			words = append(words, currLineWords...)
+		} else {
+			// Reflow the accumulated `words` before appending the unprocessed `line`.
 			currLineLen := 0
-
-			// Take the words in the comment and spread them out
-			// across multiple lines.
+			currLineWords := []string{}
+			maxCommentLen := s.config.MaxLen - s.lineLen(prefix)
 			for _, word := range words {
 				if currLineLen > 0 && currLineLen+1+len(word) > maxCommentLen {
 					cleanedLines = append(
@@ -304,19 +302,12 @@ func (s *Shortener) shortenCommentsFunc(contents []byte) []byte {
 							strings.Join(currLineWords, " "),
 						),
 					)
-
 					currLineWords = []string{}
 					currLineLen = 0
 				}
-
 				currLineWords = append(currLineWords, word)
-				if currLineLen == 0 {
-					currLineLen = len(word)
-				} else {
-					currLineLen += 1 + len(word)
-				}
+				currLineLen += 1 + len(word)
 			}
-
 			if currLineLen > 0 {
 				cleanedLines = append(
 					cleanedLines,
@@ -327,11 +318,11 @@ func (s *Shortener) shortenCommentsFunc(contents []byte) []byte {
 					),
 				)
 			}
-		} else {
+			words = []string{}
+
 			cleanedLines = append(cleanedLines, line)
 		}
 	}
-
 	return []byte(strings.Join(cleanedLines, "\n"))
 }
 
