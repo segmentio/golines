@@ -7,6 +7,9 @@ import "fmt"
 // Short suffix
 //
 
+// This comment contains multiple contiguous lines which are greater than the target maximum line length.
+// The expected result is a sequence of shortened (reflown) lines without preserving the position of line breaks.
+
 // Another comment
 
 /*
