@@ -16,6 +16,7 @@ import (
 // user experience.
 const pyTemplate = `
 import difflib
+import sys
 
 class bcolors:
     OKBLUE = '\033[94m'
@@ -37,7 +38,9 @@ def main():
 
     for line in diff:
         line = line.rstrip()
-        if line.startswith('+'):
+        if not sys.stdout.isatty() and len(line) > 0:
+            print(line)
+        elif line.startswith('+'):
             print(bcolors.OKGREEN + line + bcolors.ENDC)
         elif line.startswith('-'):
             print(bcolors.FAIL + line + bcolors.ENDC)
