@@ -1,8 +1,8 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"reflect"
 	"strings"
 	"syscall"
 
@@ -12,7 +12,7 @@ import (
 
 // PrettyDiff prints colored, git-style diffs to the console.
 func PrettyDiff(path string, contents []byte, results []byte) error {
-	if reflect.DeepEqual(contents, results) {
+	if bytes.Equal(contents, results) {
 		return nil
 	}
 
