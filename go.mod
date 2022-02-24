@@ -6,9 +6,11 @@ require (
 	github.com/dave/dst v0.26.2
 	github.com/dave/jennifer v1.2.0
 	github.com/fatih/structtag v1.2.0
+	github.com/pmezard/go-difflib v1.0.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.4.0
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
+	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
 
@@ -22,8 +24,6 @@ require (
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
 	github.com/onsi/ginkgo v1.10.2 // indirect
 	github.com/onsi/gomega v1.7.0 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
-	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550 // indirect
 	golang.org/x/sys v0.0.0-20191024172528-b4ff53e7a1cb // indirect
 	golang.org/x/tools v0.0.0-20200509030707-2212a7e161a5 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 // indirect

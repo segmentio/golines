@@ -1,120 +1,54 @@
 package main
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
-	"os"
-	"os/exec"
 	"reflect"
 	"strings"
+	"syscall"
+
+	"github.com/pmezard/go-difflib/difflib"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
-// pyTemplate is a template Python script for pretty-printing diffs
-// on the command-line. Unfortunately, there's no equivalent to difflib
-// in go, so this is the only way (I think) to provide the same kind of
-// user experience.
-const pyTemplate = `
-import difflib
-import sys
-
-class bcolors:
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-
-def main():
-    file_path = '%s'
-    orig_lines = %s
-    result_lines = %s
-
-    diff = difflib.unified_diff(
-        orig_lines,
-        result_lines,
-        fromfile=file_path,
-        tofile=file_path + '.shortened',
-    )
-
-    for line in diff:
-        line = line.rstrip()
-        if not sys.stdout.isatty() and len(line) > 0:
-            print(line)
-        elif line.startswith('+'):
-            print(bcolors.OKGREEN + line + bcolors.ENDC)
-        elif line.startswith('-'):
-            print(bcolors.FAIL + line + bcolors.ENDC)
-        elif line.startswith('^'):
-            print(bcolors.OKBLUE + line + bcolors.ENDC)
-        elif len(line) > 0:
-            print(line)
-
-if __name__ == "__main__":
-    main()
-`
-
-// PrettyDiff prints colored, git-style diffs to the console. It uses an
-// embedded Python script (above) to take advantage of Python's difflib package.
+// PrettyDiff prints colored, git-style diffs to the console.
 func PrettyDiff(path string, contents []byte, results []byte) error {
 	if reflect.DeepEqual(contents, results) {
 		return nil
 	}
 
-	contentLines := strings.Split(string(contents), "\n")
-	resultLines := strings.Split(string(results), "\n")
+	diff := difflib.UnifiedDiff{
+		A:        difflib.SplitLines(string(contents)),
+		B:        difflib.SplitLines(string(results)),
+		FromFile: path,
+		ToFile:   path + ".shortened",
+		Context:  3,
+	}
 
-	contentBytes, err := json.Marshal(contentLines)
+	text, err := difflib.GetUnifiedDiffString(diff)
 	if err != nil {
 		return err
 	}
 
-	resultBytes, err := json.Marshal(resultLines)
-	if err != nil {
-		return err
-	}
-
-	pyScript := fmt.Sprintf(
-		pyTemplate,
-		path,
-		string(contentBytes),
-		string(resultBytes),
-	)
-
-	// The script should work with either python2 or python3, but prefer the latter
-	// if it's available.
-	pyPath, err := exec.LookPath("python3")
-	if err != nil {
-		pyPath, err = exec.LookPath("python")
-		if err != nil {
-			return errors.New("Could not find python in path")
+	ansiGreen := "\033[92m"
+	ansiRed := "\033[91m"
+	ansiBlue := "\033[94m"
+	ansiEnd := "\033[0m"
+	for _, line := range strings.Split(text, "\n") {
+		line = strings.TrimRight(line, " ")
+		switch {
+		case !terminal.IsTerminal(syscall.Stdout) && len(line) > 0:
+			fmt.Printf("%s\n", line)
+		case strings.HasPrefix(line, "+"):
+			fmt.Printf("%s%s%s\n", ansiGreen, line, ansiEnd)
+		case strings.HasPrefix(line, "-"):
+			fmt.Printf("%s%s%s\n", ansiRed, line, ansiEnd)
+		case strings.HasPrefix(line, "^"):
+			fmt.Printf("%s%s%s\n", ansiBlue, line, ansiEnd)
+		case len(line) > 0:
+			fmt.Printf("%s\n", line)
 		}
 	}
-
-	cmd := exec.Command(pyPath)
-	stdinPipe, err := cmd.StdinPipe()
-	if err != nil {
-		return err
-	}
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if err = cmd.Start(); err != nil {
-		return err
-	}
-
-	_, err = stdinPipe.Write([]byte(pyScript))
-	if err != nil {
-		return err
-	}
-	stdinPipe.Close()
-
-	err = cmd.Wait()
-	if err != nil {
-		return err
-	}
-
-	fmt.Print("\n")
+	fmt.Println("")
 
 	return nil
 }
