@@ -78,8 +78,7 @@ and assumes that 1 tab = 4 columns. The latter can be changed via the
 
 #### Dry-run mode
 
-Running the tool with the `--dry-run` flag will show pretty, git-style diffs
-via an embedded Python script.
+Running the tool with the `--dry-run` flag will show pretty, git-style diffs.
 
 #### Comment shortening
 
