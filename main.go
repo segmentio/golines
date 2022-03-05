@@ -1,12 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"reflect"
 	"runtime/pprof"
 	"strings"
 
@@ -229,7 +229,7 @@ func handleOutput(path string, contents []byte, result []byte) error {
 	} else if *dryRun {
 		return PrettyDiff(path, contents, result)
 	} else if *listFiles {
-		if !reflect.DeepEqual(contents, result) {
+		if !bytes.Equal(contents, result) {
 			fmt.Println(path)
 		}
 
