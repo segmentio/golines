@@ -3,8 +3,8 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"strings"
-	"syscall"
 
 	"github.com/pmezard/go-difflib/difflib"
 	"golang.org/x/crypto/ssh/terminal"
@@ -36,7 +36,7 @@ func PrettyDiff(path string, contents []byte, results []byte) error {
 	for _, line := range strings.Split(text, "\n") {
 		line = strings.TrimRight(line, " ")
 		switch {
-		case !terminal.IsTerminal(syscall.Stdout) && len(line) > 0:
+		case !terminal.IsTerminal(int(os.Stdout.Fd())) && len(line) > 0:
 			fmt.Printf("%s\n", line)
 		case strings.HasPrefix(line, "+"):
 			fmt.Printf("%s%s%s\n", ansiGreen, line, ansiEnd)
