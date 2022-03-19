@@ -276,12 +276,13 @@ func (s *Shortener) removeAnnotations(contents []byte) []byte {
 func (s *Shortener) shortenCommentsFunc(contents []byte) []byte {
 	cleanedLines := []string{}
 	words := []string{} // all words in a contiguous sequence of long comments
+	prevLineLen := 0    // length of reflown words from previous long line
 	prefix := ""
 	lines := strings.Split(string(contents), "\n")
 	for _, line := range lines {
 		if s.isComment(line) && !IsAnnotation(line) &&
 			!s.isGoDirective(line) &&
-			s.lineLen(line) > s.config.MaxLen {
+			prevLineLen+s.lineLen(line) > s.config.MaxLen {
 			start := strings.Index(line, "//")
 			prefix = line[0:(start + 2)]
 			trimmedLine := strings.Trim(line[(start+2):], " ")
@@ -309,18 +310,33 @@ func (s *Shortener) shortenCommentsFunc(contents []byte) []byte {
 				currLineLen += 1 + len(word)
 			}
 			if currLineLen > 0 {
-				cleanedLines = append(
-					cleanedLines,
-					fmt.Sprintf(
-						"%s %s",
-						prefix,
-						strings.Join(currLineWords, " "),
-					),
-				)
+				lastWord := currLineWords[len(currLineWords)-1]
+				if s.isComment(line) && !IsAnnotation(line) &&
+					!s.isGoDirective(line) &&
+					!strings.HasSuffix(lastWord, ".") {
+					// The previous long line didn't end with a period, and the current
+					// line is a comment. Hence they are reflown.
+					start := strings.Index(line, "//")
+					prefix = line[0:(start + 2)]
+					trimmedLine := strings.Trim(line[(start+2):], " ")
+					prevLineLen = currLineLen + len(trimmedLine)
+					words = append(currLineWords, strings.Split(trimmedLine, " ")...)
+					continue // skip reprocessing `line` later
+				} else {
+					cleanedLines = append(
+						cleanedLines,
+						fmt.Sprintf(
+							"%s %s",
+							prefix,
+							strings.Join(currLineWords, " "),
+						),
+					)
+				}
 			}
 			words = []string{}
 
 			cleanedLines = append(cleanedLines, line)
+			prevLineLen = 0
 		}
 	}
 	return []byte(strings.Join(cleanedLines, "\n"))
