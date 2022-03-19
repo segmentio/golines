@@ -24,7 +24,7 @@ require (
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
 	github.com/onsi/ginkgo v1.10.2 // indirect
 	github.com/onsi/gomega v1.7.0 // indirect
-	golang.org/x/sys v0.0.0-20191024172528-b4ff53e7a1cb // indirect
+	golang.org/x/sys v0.0.0-20220318055525-2edf467146b5 // indirect
 	golang.org/x/tools v0.0.0-20200509030707-2212a7e161a5 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 // indirect
 	gopkg.in/yaml.v2 v2.2.2 // indirect
