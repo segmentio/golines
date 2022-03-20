@@ -280,6 +280,10 @@ func (s *Shortener) shortenCommentsFunc(contents []byte) []byte {
 	prefix := ""
 	lines := strings.Split(string(contents), "\n")
 
+	shorten := func(line string) bool {
+		return s.isComment(line) && !IsAnnotation(line) && !s.isGoDirective(line)
+	}
+
 	getCurrLineWords := func(line string) ([]string, int) {
 		start := strings.Index(line, "//")
 		prefix = line[0:(start + 2)]
@@ -289,9 +293,7 @@ func (s *Shortener) shortenCommentsFunc(contents []byte) []byte {
 	}
 
 	for _, line := range lines {
-		if s.isComment(line) && !IsAnnotation(line) &&
-			!s.isGoDirective(line) &&
-			prevLineLen+s.lineLen(line) > s.config.MaxLen {
+		if shorten(line) && prevLineLen+s.lineLen(line) > s.config.MaxLen {
 			currLineWords, _ := getCurrLineWords(line)
 			words = append(words, currLineWords...)
 		} else {
@@ -317,9 +319,7 @@ func (s *Shortener) shortenCommentsFunc(contents []byte) []byte {
 			}
 			if currLineLen > 0 {
 				lastWord := currLineWords[len(currLineWords)-1]
-				if s.isComment(line) && !IsAnnotation(line) &&
-					!s.isGoDirective(line) &&
-					!strings.HasSuffix(lastWord, ".") {
+				if shorten(line) && !strings.HasSuffix(lastWord, ".") {
 					// The previous long line didn't end with a period, and the current
 					// line is a comment. Hence they are reflown.
 					w, l := getCurrLineWords(line)
