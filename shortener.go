@@ -276,7 +276,7 @@ func (s *Shortener) removeAnnotations(contents []byte) []byte {
 func (s *Shortener) shortenCommentsFunc(contents []byte) []byte {
 	cleanedLines := []string{}
 	words := []string{} // all words in a contiguous sequence of long comments
-	prevLineLen := 0    // length of reflown words from previous long line
+	prevLineLen := 0    // length of reflown words from previous long comment
 	prefix := ""
 	lines := strings.Split(string(contents), "\n")
 	for _, line := range lines {
