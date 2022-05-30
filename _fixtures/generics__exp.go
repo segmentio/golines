@@ -1,6 +1,6 @@
 package main
 
-func SumIntsOrFloats(
+func SumIntsOrFloats[K comparable, V int64 | float64](
 	m map[K]V,
 	longArgument1 int,
 	longArgument2 int,
@@ -13,7 +13,7 @@ func SumIntsOrFloats(
 	return s
 }
 
-func SumIntsOrFloats2(m map[K]V) V {
+func SumIntsOrFloats2[K comparable, V int64 | float64](m map[K]V) V {
 	var s V
 	for _, v := range m {
 		s += v
