@@ -220,6 +220,10 @@ func NodeToGraphNode(node dst.Node) *GraphNode {
 			child = NodeToGraphNode(n.Name)
 			gNode.Edges = append(gNode.Edges, &GraphEdge{Dest: child, Relationship: "Name"})
 		}
+		if n.Type.TypeParams != nil {
+			child = NodeToGraphNode(n.Type.TypeParams)
+			gNode.Edges = append(gNode.Edges, &GraphEdge{Dest: child, Relationship: "TypeParams"})
+		}
 		if n.Type.Params != nil {
 			child = NodeToGraphNode(n.Type.Params)
 			gNode.Edges = append(gNode.Edges, &GraphEdge{Dest: child, Relationship: "Params"})
@@ -244,6 +248,10 @@ func NodeToGraphNode(node dst.Node) *GraphNode {
 		}
 	case *dst.FuncType:
 		gNode.Type = "FuncType"
+		if n.TypeParams != nil {
+			child = NodeToGraphNode(n.TypeParams)
+			gNode.Edges = append(gNode.Edges, &GraphEdge{Dest: child, Relationship: "TypeParams"})
+		}
 		if n.Params != nil {
 			child = NodeToGraphNode(n.Params)
 			gNode.Edges = append(gNode.Edges, &GraphEdge{Dest: child, Relationship: "Params"})
@@ -312,6 +320,18 @@ func NodeToGraphNode(node dst.Node) *GraphNode {
 		if n.Index != nil {
 			child = NodeToGraphNode(n.Index)
 			gNode.Edges = append(gNode.Edges, &GraphEdge{Dest: child, Relationship: "Index"})
+		}
+	case *dst.IndexListExpr:
+		gNode.Type = "IndexListExpr"
+		if n.X != nil {
+			child = NodeToGraphNode(n.X)
+			gNode.Edges = append(gNode.Edges, &GraphEdge{Dest: child, Relationship: "X"})
+		}
+		if n.Indices != nil {
+			for _, obj := range n.Indices {
+				child = NodeToGraphNode(obj)
+				gNode.Edges = append(gNode.Edges, &GraphEdge{Dest: child, Relationship: "Indices"})
+			}
 		}
 	case *dst.InterfaceType:
 		gNode.Type = "InterfaceType"
@@ -468,6 +488,10 @@ func NodeToGraphNode(node dst.Node) *GraphNode {
 		if n.Name != nil {
 			child = NodeToGraphNode(n.Name)
 			gNode.Edges = append(gNode.Edges, &GraphEdge{Dest: child, Relationship: "Name"})
+		}
+		if n.TypeParams != nil {
+			child = NodeToGraphNode(n.TypeParams)
+			gNode.Edges = append(gNode.Edges, &GraphEdge{Dest: child, Relationship: "TypeParams"})
 		}
 		if n.Type != nil {
 			child = NodeToGraphNode(n.Type)
