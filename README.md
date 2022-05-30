@@ -45,6 +45,12 @@ See this [before](_fixtures/end_to_end.go) and [after](_fixtures/end_to_end__exp
 view of a file with very long lines. More example pairs can be found in the
 [`_fixtures`](_fixtures) directory.
 
+## Version support
+
+The latest version of `golines` requires golang 1.18 due to generics-related dependencies.
+If you need to use `golines` with an older version of go, install the tool from the `v0.9.0`
+release.
+
 ## Usage
 
 First, install the tool:
