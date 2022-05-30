@@ -10,7 +10,7 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.4.0
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+	golang.org/x/crypto v0.0.0-20220517005047-85d78b3ac167
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
 
