@@ -53,10 +53,16 @@ release.
 
 ## Usage
 
-First, install the tool:
+First, install the tool. If you're using golang 1.18, run:
 
 ```
 go install github.com/segmentio/golines@latest
+```
+
+Otherwise, for older golang versions, run:
+
+```
+go install github.com/segmentio/golines@v0.9.0
 ```
 
 Then, run:
