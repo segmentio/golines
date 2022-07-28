@@ -244,8 +244,13 @@ func handleOutput(path string, contents []byte, result []byte) error {
 			return err
 		}
 
-		log.Debugf("Writing output to %s", path)
-		return ioutil.WriteFile(path, result, info.Mode())
+		if bytes.Equal(contents, result) {
+			log.Debugf("Contents unchanged, skipping write")
+			return nil
+		} else {
+			log.Debugf("Contents changed, writing output to %s", path)
+			return ioutil.WriteFile(path, result, info.Mode())
+		}
 	} else {
 		fmt.Print(string(result))
 		return nil
