@@ -1,13 +1,15 @@
 version: 2
 jobs:
   test:
-    working_directory: /go/src/github.com/segmentio/golines
     docker:
       - image: cimg/go:1.19
         environment:
           GO111MODULE: 'on'
     steps:
       - checkout
+      - run:
+          name: Download dependencies
+          command: go mod download
       - run:
           name: Run tests
           command: make test
