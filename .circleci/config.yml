@@ -9,9 +9,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Download dependencies
-          command: go mod download
-      - run:
           name: Run tests
           command: make test
       - run:
