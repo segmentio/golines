@@ -3,7 +3,7 @@ jobs:
   test:
     working_directory: /go/src/github.com/segmentio/golines
     docker:
-      - image: circleci/golang:1.19
+      - image: cimg/go:1.19
         environment:
           GO111MODULE: 'on'
     steps:
