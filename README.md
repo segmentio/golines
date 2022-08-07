@@ -47,13 +47,13 @@ view of a file with very long lines. More example pairs can be found in the
 
 ## Version support
 
-The latest version of `golines` requires golang 1.18 due to generics-related dependencies.
+The latest version of `golines` requires golang 1.18 or newer due to generics-related dependencies.
 If you need to use `golines` with an older version of go, install the tool from the `v0.9.0`
 release.
 
 ## Usage
 
-First, install the tool. If you're using golang 1.18, run:
+First, install the tool. If you're using golang 1.18 or newer, run:
 
 ```
 go install github.com/segmentio/golines@latest
