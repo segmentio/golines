@@ -18,8 +18,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: test golines
-        uses: actions/setup-go@v2
-        cache: true
+        uses: actions/setup-go@v2        
         with:
           go-version: ${{ matrix.go }}
+          cache: true
       - run: make test
