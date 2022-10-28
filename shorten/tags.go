@@ -1,4 +1,4 @@
-package main
+package shorten
 
 import (
 	"fmt"
@@ -12,9 +12,9 @@ import (
 
 var structTagRegexp = regexp.MustCompile("`([ ]*[a-zA-Z0-9_-]+:\".*\"[ ]*){2,}`")
 
-// HasMultiKeyTags returns whether the given lines have a multikey struct line.
+// hasMultiKeyTags returns whether the given lines have a multikey struct line.
 // It's used as an optimization step to avoid unnnecessary shortening rounds.
-func HasMultiKeyTags(lines []string) bool {
+func hasMultiKeyTags(lines []string) bool {
 	for _, line := range lines {
 		if structTagRegexp.MatchString(line) {
 			return true
@@ -24,12 +24,12 @@ func HasMultiKeyTags(lines []string) bool {
 	return false
 }
 
-// FormatStructTags formats struct tags so that the keys within each block of fields are aligned.
+// formatStructTags formats struct tags so that the keys within each block of fields are aligned.
 // It's not technically a shortening (and it usually makes these tags longer), so it's being
 // kept separate from the core shortening logic for now.
 //
 // See the struct_tags fixture for examples.
-func FormatStructTags(fieldList *dst.FieldList) {
+func formatStructTags(fieldList *dst.FieldList) {
 	if fieldList == nil || len(fieldList.List) == 0 {
 		return
 	}

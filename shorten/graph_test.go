@@ -1,4 +1,4 @@
-package main
+package shorten
 
 import (
 	"bytes"
@@ -44,7 +44,7 @@ func TestCreateDot(t *testing.T) {
 	assert.Nil(t, err)
 
 	out := &bytes.Buffer{}
-	err = CreateDot(node, out)
+	err = createDot(node, out)
 	assert.Nil(t, err)
 
 	assert.Equal(t, strings.TrimSpace(expDot), string(out.Bytes()))

@@ -1,4 +1,4 @@
-package main
+package shorten
 
 import (
 	"io/ioutil"
@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const fixturesDir = "_fixtures"
+const fixturesDir = "../_fixtures"
 
 // TestShortener verifies the core shortening functionality on the files in the _fixtures
 // directory. To update the expected outputs, run tests with the REGENERATE_TEST_OUTPUTS
@@ -42,8 +42,8 @@ func TestShortener(t *testing.T) {
 	}
 	defer os.RemoveAll(dotDir)
 
-	shortener := NewShortener(
-		ShortenerConfig{
+	shortener := New(
+		Config{
 			MaxLen:           100,
 			TabLen:           4,
 			KeepAnnotations:  false,
@@ -93,4 +93,9 @@ func TestShortener(t *testing.T) {
 
 		assert.Equal(t, string(expectedContents), string(shortenedContents))
 	}
+}
+
+func TestShortener_NewDefaultConfig(t *testing.T) {
+	shortener := New()
+	assert.Equal(t, DefaultConfig(), shortener.config)
 }

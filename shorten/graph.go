@@ -1,4 +1,4 @@
-package main
+package shorten
 
 import (
 	"fmt"
@@ -9,33 +9,33 @@ import (
 	"github.com/dave/dst"
 )
 
-// GraphNode is a representation of a node in the AST graph.
-type GraphNode struct {
+// graphNode is a representation of a node in the AST graph.
+type graphNode struct {
 	Type  string
 	Value string
 	Node  dst.Node
-	Edges []*GraphEdge
+	Edges []*graphEdge
 
 	// Used for keeping track of node position during rendering
 	level int
 	seq   int
 }
 
-func (n *GraphNode) id() string {
+func (n *graphNode) id() string {
 	return fmt.Sprintf("%s_%d_%d", n.Type, n.level, n.seq)
 }
 
-// GraphEdge is a representation of an edge in the AST graph.
-type GraphEdge struct {
-	Dest         *GraphNode
+// graphEdge is a representation of an edge in the AST graph.
+type graphEdge struct {
+	Dest         *graphNode
 	Relationship string
 }
 
-// CreateDot creates a dot representation of the graph associated with a dst node.
-func CreateDot(node dst.Node, out io.Writer) error {
-	root := NodeToGraphNode(node)
+// createDot creates a dot representation of the graph associated with a dst node.
+func createDot(node dst.Node, out io.Writer) error {
+	root := nodeToGraphNode(node)
 
-	dotGraph, err := WalkGraph(root)
+	dotGraph, err := walkGraph(root)
 	if err != nil {
 		return err
 	}
@@ -44,11 +44,11 @@ func CreateDot(node dst.Node, out io.Writer) error {
 	return err
 }
 
-// WalkGraph walks the graph starting at the argument root and returns
+// walkGraph walks the graph starting at the argument root and returns
 // a graphviz (dot) representation.
-func WalkGraph(root *GraphNode) (string, error) {
-	toProcess := []*GraphNode{root}
-	processed := []*GraphNode{}
+func walkGraph(root *graphNode) (string, error) {
+	toProcess := []*graphNode{root}
+	processed := []*graphNode{}
 	outLines := []string{"digraph {"}
 
 	var currLevel int
@@ -84,7 +84,7 @@ func WalkGraph(root *GraphNode) (string, error) {
 		var nodeLabel string
 		var nodeFormat string
 
-		if HasAnnotation(node.Node) {
+		if hasAnnotation(node.Node) {
 			nodeFormat = ",penwidth=3.0"
 		}
 

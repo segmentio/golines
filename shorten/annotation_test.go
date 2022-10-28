@@ -1,4 +1,4 @@
-package main
+package shorten
 
 import (
 	"testing"
@@ -8,12 +8,12 @@ import (
 )
 
 func TestAnnotationStrings(t *testing.T) {
-	assert.Equal(t, "// __golines:shorten:5", CreateAnnotation(5))
-	assert.Equal(t, 5, ParseAnnotation("// __golines:shorten:5"))
-	assert.Equal(t, -1, ParseAnnotation("// __golines:shorten:not_a_number"))
-	assert.Equal(t, -1, ParseAnnotation("// not an annotation"))
-	assert.True(t, IsAnnotation("// __golines:shorten:5"))
-	assert.False(t, IsAnnotation("// not an annotation"))
+	assert.Equal(t, "// __golines:shorten:5", createAnnotation(5))
+	assert.Equal(t, 5, parseAnnotation("// __golines:shorten:5"))
+	assert.Equal(t, -1, parseAnnotation("// __golines:shorten:not_a_number"))
+	assert.Equal(t, -1, parseAnnotation("// not an annotation"))
+	assert.True(t, isAnnotation("// __golines:shorten:5"))
+	assert.False(t, isAnnotation("// not an annotation"))
 }
 
 func TestHasAnnotation(t *testing.T) {
@@ -23,12 +23,12 @@ func TestHasAnnotation(t *testing.T) {
 			NodeDecs: dst.NodeDecs{
 				Start: []string{
 					"// not an annotation",
-					CreateAnnotation(55),
+					createAnnotation(55),
 				},
 			},
 		},
 	}
-	assert.True(t, HasAnnotation(node1))
+	assert.True(t, hasAnnotation(node1))
 
 	node2 := &dst.Ident{
 		Name: "x",
@@ -40,5 +40,5 @@ func TestHasAnnotation(t *testing.T) {
 			},
 		},
 	}
-	assert.False(t, HasAnnotation(node2))
+	assert.False(t, hasAnnotation(node2))
 }
