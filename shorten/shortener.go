@@ -48,6 +48,16 @@ type Config struct {
 	BaseFormatterCmd string
 }
 
+func DefaultConfig() Config {
+	return Config{
+		MaxLen:          100,
+		TabLen:          4,
+		ReformatTags:    true,
+		IgnoreGenerated: true,
+		ChainSplitDots:  true,
+	}
+}
+
 // Shortener shortens a single go file according to a small set of user style
 // preferences.
 type Shortener struct {
