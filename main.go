@@ -10,6 +10,8 @@ import (
 	"runtime/pprof"
 	"strings"
 
+	"github.com/segmentio/golines/shorten"
+
 	log "github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
@@ -113,7 +115,7 @@ func main() {
 }
 
 func run() error {
-	config := ShortenerConfig{
+	config := shorten.Config{
 		MaxLen:           *maxLen,
 		TabLen:           *tabLen,
 		KeepAnnotations:  *keepAnnotations,
@@ -124,7 +126,7 @@ func run() error {
 		BaseFormatterCmd: *baseFormatterCmd,
 		ChainSplitDots:   *chainSplitDots,
 	}
-	shortener := NewShortener(config)
+	shortener := shorten.New(config)
 
 	if len(*paths) == 0 {
 		// Read input from stdin
@@ -203,7 +205,7 @@ func run() error {
 // processFile uses the provided Shortener instance to shorten the lines
 // in a file. It returns the original contents (useful for debugging), the
 // shortened version, and an error.
-func processFile(shortener *Shortener, path string) ([]byte, []byte, error) {
+func processFile(shortener *shorten.Shortener, path string) ([]byte, []byte, error) {
 	_, fileName := filepath.Split(path)
 	if *ignoreGenerated && strings.HasPrefix(fileName, "generated_") {
 		return nil, nil, nil
