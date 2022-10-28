@@ -94,3 +94,8 @@ func TestShortener(t *testing.T) {
 		assert.Equal(t, string(expectedContents), string(shortenedContents))
 	}
 }
+
+func TestShortener_NewDefaultConfig(t *testing.T) {
+	shortener := New()
+	assert.Equal(t, DefaultConfig(), shortener.config)
+}

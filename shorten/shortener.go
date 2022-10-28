@@ -70,7 +70,14 @@ type Shortener struct {
 }
 
 // New creates a new shortener instance from the provided config.
-func New(config Config) *Shortener {
+func New(configs ...Config) *Shortener {
+	var config Config
+	if len(configs) == 0 {
+		config = DefaultConfig()
+	} else {
+		config = configs[0]
+	}
+
 	var formatterComponents []string
 
 	if config.BaseFormatterCmd == "" {
