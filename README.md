@@ -195,6 +195,12 @@ let g:go_fmt_options = {
   - __Output paths to refresh:__ `$FilePath$`
 3. Activate your newly created file watcher in the Goland settings under "Tools" -> "Actions on save"
 
+If you find that `golines` is activating too quickly, you can lower the frequency by doing the following:
+1. Open your newly created file watcher in the Goland settings by clicking "Tools" -> "File Watchers"
+2. In the Advanced Options section, uncheck the box labeled `Auto saved edited files to trigger the watcher`
+3. In Goland settings, under "Appearance & Behavior" -> "System Settings", in the Autosave section, 
+check the box `Save files if the IDE is idle for X seconds` and adjust the number of seconds idle before a save takes place.
+
 ### Others
 
 Coming soon.
