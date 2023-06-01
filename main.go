@@ -206,7 +206,7 @@ func run() error {
 						}
 
 						if !subInfo.IsDir() && strings.HasSuffix(subPath, ".go") {
-							if *writeOutput && *jobs >= 2 {
+							if (*writeOutput || *listFiles) && *jobs >= 2 {
 								wg.Add(1)
 								worker <- &WorkerProcessRequest{
 									path: subPath,
@@ -231,7 +231,7 @@ func run() error {
 					return err
 				}
 			default:
-				if *writeOutput && *jobs >= 2 {
+				if (*writeOutput || *listFiles) && *jobs >= 2 {
 					wg.Add(1)
 					worker <- &WorkerProcessRequest{
 						path: path,
