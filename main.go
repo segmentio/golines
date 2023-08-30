@@ -226,15 +226,16 @@ func processFile(shortener *Shortener, path string) ([]byte, []byte, error) {
 func handleOutput(path string, contents []byte, result []byte) error {
 	if contents == nil {
 		return nil
-	} else if *dryRun {
+	}
+	if *dryRun {
 		return PrettyDiff(path, contents, result)
-	} else if *listFiles {
+	}
+	if *listFiles {
 		if !bytes.Equal(contents, result) {
 			fmt.Println(path)
 		}
-
-		return nil
-	} else if *writeOutput {
+	}
+	if *writeOutput {
 		if path == "" {
 			return errors.New("No path to write out to")
 		}
@@ -246,13 +247,16 @@ func handleOutput(path string, contents []byte, result []byte) error {
 
 		if bytes.Equal(contents, result) {
 			log.Debugf("Contents unchanged, skipping write")
-			return nil
 		} else {
 			log.Debugf("Contents changed, writing output to %s", path)
-			return ioutil.WriteFile(path, result, info.Mode())
+			err = ioutil.WriteFile(path, result, info.Mode())
+			if err != nil {
+				return err
+			}
 		}
-	} else {
-		fmt.Print(string(result))
-		return nil
 	}
+	if !*listFiles && !*writeOutput {
+		fmt.Print(string(result))
+	}
+	return nil
 }
