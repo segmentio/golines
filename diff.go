@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/pmezard/go-difflib/difflib"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/crypto/ssh/terminal" //nolint:staticcheck
 )
 
 // PrettyDiff prints colored, git-style diffs to the console.

@@ -72,7 +72,7 @@ func TestShortener(t *testing.T) {
 		expectedPath := fixturePath[0:len(fixturePath)-3] + "__exp" + ".go"
 
 		if os.Getenv("REGENERATE_TEST_OUTPUTS") == "true" {
-			err := ioutil.WriteFile(expectedPath, shortenedContents, 0644)
+			err := ioutil.WriteFile(expectedPath, shortenedContents, 0o600)
 			if err != nil {
 				t.Fatalf(
 					"Unexpected error writing output file %s: %+v",

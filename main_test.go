@@ -170,7 +170,7 @@ func writeTestFiles(
 			paths = &tmpPaths
 		}
 
-		err := ioutil.WriteFile(path, []byte(contents), 0644)
+		err := ioutil.WriteFile(path, []byte(contents), 0o600)
 		if err != nil {
 			t.Fatal("Unexpected error writing test file", err)
 		}
