@@ -74,18 +74,11 @@ func NewShortener(config ShortenerConfig) *Shortener {
 		formatterComponents = strings.Split(config.BaseFormatterCmd, " ")
 	}
 
-	s := &Shortener{
-		config:        config,
-		baseFormatter: formatterComponents[0],
+	return &Shortener{
+		config:            config,
+		baseFormatter:     formatterComponents[0],
+		baseFormatterArgs: formatterComponents[1:],
 	}
-
-	if len(formatterComponents) > 1 {
-		s.baseFormatterArgs = formatterComponents[1:]
-	} else {
-		s.baseFormatterArgs = []string{}
-	}
-
-	return s
 }
 
 // Shorten shortens the provided golang file content bytes.
@@ -194,7 +187,7 @@ func (s *Shortener) formatSrc(contents []byte) ([]byte, error) {
 		return format.Source(contents)
 	}
 
-	cmd := exec.Command(s.baseFormatter, s.baseFormatterArgs...)
+	cmd := exec.Command(s.baseFormatter, s.baseFormatterArgs...) // #nosec G204 -- let the user run what they want
 	stdinPipe, err := cmd.StdinPipe()
 	if err != nil {
 		return nil, err

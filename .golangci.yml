@@ -1,0 +1,34 @@
+run:
+  tests: true
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  govet:
+    check-shadowing: false
+  revive:
+    rules:
+      - name: exported
+        disabled: true
+  gci:
+    sections: 
+      - standard
+      - default
+      - prefix(gitlab.com/matthewhughes/go-style-lint)
+  nolintlint:
+    require-specific: true
+
+linters:
+  enable:
+    - revive
+    - misspell
+    - nakedret
+    - gas
+    - unconvert
+    - unparam
+    - prealloc
+    - goimports
+    - gofumpt
+    - gci
+    - nolintlint

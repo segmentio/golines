@@ -2,7 +2,7 @@
 Command golines is a formatter that shortens long go code lines, in addition to the
 formatting fixes done by gofmt.
 
-	 $ go get -u github.com/segmentio/golines
+	$ go get -u github.com/segmentio/golines
 
 See the project README for more details:
 
@@ -10,7 +10,6 @@ See the project README for more details:
 
 File bugs or feature requests at:
 
-    https://github.com/segmentio/golines/issues
-
+	https://github.com/segmentio/golines/issues
 */
 package main // import "github.com/segmentio/golines"

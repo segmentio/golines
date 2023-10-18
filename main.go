@@ -96,7 +96,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		pprof.StartCPUProfile(f)
+		pprof.StartCPUProfile(f) //nolint:errcheck
 		defer pprof.StopCPUProfile()
 	}
 
@@ -106,8 +106,7 @@ func main() {
 		ForceFormatting: true,
 	})
 
-	err := run()
-	if err != nil {
+	if err := run(); err != nil {
 		log.Fatal(err)
 	}
 }
