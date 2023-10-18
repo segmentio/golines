@@ -25,3 +25,14 @@ jobs:
           go-version: ${{ matrix.go }}
           cache: true
       - run: make test
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: go.mod
+          # golangci-lint-action handles caching for us
+          cache: false
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
