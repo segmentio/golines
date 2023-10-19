@@ -4,19 +4,28 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-const fixturesDir = "_fixtures"
+var testdataDir string
 
-// TestShortener verifies the core shortening functionality on the files in the _fixtures
+func init() {
+	_, file, _, ok := runtime.Caller(0)
+	if !ok {
+		panic("Can't get current filename")
+	}
+	testdataDir = filepath.Join(filepath.Dir(file), "testdata")
+}
+
+// TestShortener verifies the core shortening functionality on the files in the testdata
 // directory. To update the expected outputs, run tests with the REGENERATE_TEST_OUTPUTS
 // environment variable set to "true".
 func TestShortener(t *testing.T) {
-	info, err := ioutil.ReadDir(fixturesDir)
+	info, err := ioutil.ReadDir(testdataDir)
 	assert.Nil(t, err)
 
 	fixturePaths := []string{}
@@ -32,7 +41,7 @@ func TestShortener(t *testing.T) {
 
 		fixturePaths = append(
 			fixturePaths,
-			filepath.Join(fixturesDir, fileInfo.Name()),
+			filepath.Join(testdataDir, fileInfo.Name()),
 		)
 	}
 
