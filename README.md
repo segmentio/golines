@@ -41,9 +41,9 @@ More background and technical details are available in
 
 ## Examples
 
-See this [before](_fixtures/end_to_end.go) and [after](_fixtures/end_to_end__exp.go)
+See this [before](testdata/end_to_end.go) and [after](testdata/end_to_end__exp.go)
 view of a file with very long lines. More example pairs can be found in the
-[`_fixtures`](_fixtures) directory.
+[`testdata`](testdata) directory.
 
 ## Version support
 
@@ -146,8 +146,8 @@ flag.
 #### Struct tag reformatting
 
 In addition to shortening long lines, the tool also aligns struct tag keys; see the
-associated [before](_fixtures/struct_tags.go) and [after](_fixtures/struct_tags__exp.go)
-examples in the `_fixtures` directory. To turn this behavior off, run with `--no-reformat-tags`.
+associated [before](testdata/struct_tags.go) and [after](testdata/struct_tags__exp.go)
+examples in the `testdata` directory. To turn this behavior off, run with `--no-reformat-tags`.
 
 ## Developer Tooling Integration
 
