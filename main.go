@@ -1,5 +1,7 @@
 package main
 
+//go:generate sh -c "go run ./generate/ > graph_generated.go"
+
 import (
 	"bytes"
 	"errors"
