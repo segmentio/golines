@@ -25,14 +25,48 @@ jobs:
           go-version: ${{ matrix.go }}
           cache: true
       - run: make test
-  lint:
+  golangci-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v4
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: setup go
+        uses: actions/setup-go@v4
         with:
-          go-version-file: go.mod
-          # golangci-lint-action handles caching for us
+          # rely on golangci/golangci-lint-action for caching
           cache: false
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # pre-commit needs tags for the current repo
+          fetch-depth: 0
+          fetch-tags: true
+      - uses: actions/setup-python@v3
+      - uses: pre-commit/action@v3.0.0
+        env:
+          # run this separately since it handles it's own caching
+          SKIP: golangci-lint
+  check-generated-code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: setup go
+        uses: actions/setup-go@v4
+      - name: generate code
+        run: go generate ./...
+      - name: check for changes in generated code
+        run: |
+          git add .
+          if ! git diff --cached --quiet -- .
+          then
+            echo 'changes detected from `go generate`' >&2
+            exit 1
+          fi
+
