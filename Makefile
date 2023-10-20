@@ -26,7 +26,7 @@ regenerate:
 
 .PHONY: graph
 graph:
-	go generate
+	go generate ./...
 
 .PHONY: vendor
 vendor:

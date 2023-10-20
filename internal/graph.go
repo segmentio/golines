@@ -1,4 +1,6 @@
-package main
+package internal
+
+//go:generate sh -c "go run ../generate/ > graph_generated.go"
 
 import (
 	"fmt"
@@ -46,7 +48,7 @@ func CreateDot(node dst.Node, out io.Writer) error {
 
 // WalkGraph walks the graph starting at the argument root and returns
 // a graphviz (dot) representation.
-func WalkGraph(root *GraphNode) (string, error) { //nolint:unparam
+func WalkGraph(root *GraphNode) (string, error) {
 	toProcess := []*GraphNode{root}
 	processed := []*GraphNode{}
 	outLines := []string{"digraph {"}
