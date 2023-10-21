@@ -12,13 +12,9 @@ build:
 	go build .
 
 .PHONY: test
-test: vet
-	go test -count=1 -cover -coverprofile=coverage.out .
+test:
+	go test -count=1 -cover -coverprofile=coverage.out ./...
 	go tool cover -func=coverage.out
-
-.PHONY: vet
-vet:
-	go vet .
 
 .PHONY: regenerate
 regenerate:
@@ -28,10 +24,6 @@ regenerate:
 graph:
 	go generate ./...
 
-.PHONY: vendor
-vendor:
-	go mod vendor
-
 .PHONY: format
 format:
-	goimports -w ./*go
+	pre-commit run --all-files
