@@ -1,6 +1,6 @@
 package internal
 
-//go:generate sh -c "go run ../generate/ > graph_generated.go"
+//go:generate sh -c "go run ../scripts/generate/ > graph_generated.go"
 
 import (
 	"fmt"
