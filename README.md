@@ -41,9 +41,10 @@ More background and technical details are available in
 
 ## Examples
 
-See this [before](testdata/end_to_end.go) and [after](testdata/end_to_end__exp.go)
-view of a file with very long lines. More example pairs can be found in the
-[`testdata`](testdata) directory.
+See this [before](internal/testdata/end_to_end.go) and
+[after](internal/testdata/end_to_end__exp.go) view of a file with very long
+lines. More example pairs can be found in the
+[`internal/testdata`](internal/testdata) directory.
 
 ## Version support
 
@@ -145,9 +146,11 @@ flag.
 
 #### Struct tag reformatting
 
-In addition to shortening long lines, the tool also aligns struct tag keys; see the
-associated [before](testdata/struct_tags.go) and [after](testdata/struct_tags__exp.go)
-examples in the `testdata` directory. To turn this behavior off, run with `--no-reformat-tags`.
+In addition to shortening long lines, the tool also aligns struct tag keys; see
+the associated [before](internal/testdata/struct_tags.go) and
+[after](internal/testdata/struct_tags__exp.go) examples in the
+[`internal/testdata`](internal/testdata) directory. To turn this behavior off,
+run with `--no-reformat-tags`.
 
 ## Developer Tooling Integration
 
