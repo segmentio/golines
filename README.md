@@ -1,7 +1,6 @@
 [![golines test](https://github.com/segmentio/golines/actions/workflows/go.yml/badge.svg)](https://github.com/segmentio/golines/actions/workflows/go.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/segmentio/golines)](https://goreportcard.com/report/github.com/segmentio/golines)
 [![GoDoc](https://godoc.org/github.com/segmentio/golines?status.svg)](https://godoc.org/github.com/segmentio/golines)
-[![Coverage](https://img.shields.io/badge/Go%20Coverage-84%25-brightgreen.svg?longCache=true&style=flat)](https://gocover.io/github.com/segmentio/golines?version=1.21.x)
 
 # golines
 
