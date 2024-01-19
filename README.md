@@ -4,12 +4,12 @@
 
 # golines
 
-Golines is a golang formatter that shortens long lines, in addition to all
+Golines is a Go code formatter that shortens long lines, in addition to all
 of the formatting fixes done by [`gofmt`](https://golang.org/cmd/gofmt/).
 
 ## Motivation
 
-The standard golang formatting tools (`gofmt`, `goimports`, etc.) are great, but
+The standard Go formatting tools (`gofmt`, `goimports`, etc.) are great, but
 [deliberately don't shorten long lines](https://github.com/golang/go/issues/11915);
 instead, this is an activity left to developers.
 
@@ -32,7 +32,7 @@ myMap := map[string]string{
 }
 ```
 
-We built `golines` to give go developers the option to automatically shorten long lines, like
+We built `golines` to give Go developers the option to automatically shorten long lines, like
 the one above, according to their preferences.
 
 More background and technical details are available in
@@ -46,19 +46,21 @@ view of a file with very long lines. More example pairs can be found in the
 
 ## Version support
 
-Newer releases of `golines` require golang 1.21 or newer due to generics-related dependencies.
-If you need to use `golines` with an older version of go, install the tool from the `v0.9.0`
-release.
+Newer releases of `golines` require at least Go 1.18 due to generics-related dependencies.
+However, the [minimum version](https://go.dev/ref/mod#go-mod-file-go) in [`go.mod`](./go.mod)
+should be considered the minimum required version of Go for any given version
+of `golines.` If you need to use `golines` with an older version of go, install
+the tool from the `v0.9.0` release.
 
 ## Usage
 
-First, install the tool. If you're using golang 1.21 or newer, run:
+First, install the tool. If you're using Go 1.21 or newer, run:
 
 ```text
 go install github.com/segmentio/golines@latest
 ```
 
-Otherwise, for older golang versions, run:
+Otherwise, for older Go versions, run:
 
 ```text
 go install github.com/segmentio/golines@v0.9.0
