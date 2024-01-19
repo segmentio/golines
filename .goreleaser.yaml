@@ -1,0 +1,43 @@
+project_name: golines
+before:
+  hooks:
+    - go clean -x
+
+builds:
+  - main: .
+    ldflags:
+      - -s -w
+    flags:
+      - -trimpath
+      - -v
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - GOAMD64=v3
+
+universal_binaries:
+  - replace: true
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - files:
+      - README.md
+      - LICENSE
+    wrap_in_directory: true
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-pre+{{ .ShortCommit }}"
+
+changelog:
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+announce:
+  skip: true
