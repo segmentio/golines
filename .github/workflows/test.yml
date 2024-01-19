@@ -1,4 +1,4 @@
-name: golines test
+name: test
 on:
   push:
     branches:
