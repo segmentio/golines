@@ -1,7 +1,7 @@
 package main
 
 import (
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -27,7 +27,7 @@ func main() {
 }
 
 func TestRunDir(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "go")
+	tmpDir, err := os.MkdirTemp("", "go")
 	if err != nil {
 		t.Fatal("Unexpected error creating temp dir", err)
 	}
@@ -45,7 +45,7 @@ func TestRunDir(t *testing.T) {
 	// Without writeOutput set to true, inputs should be unchanged
 	for name, contents := range testFiles {
 		path := filepath.Join(tmpDir, name)
-		bytes, err := ioutil.ReadFile(path)
+		bytes, err := os.ReadFile(path)
 		if err != nil {
 			t.Fatal("Unexpected error reading test file", err)
 		}
@@ -65,7 +65,7 @@ func TestRunDir(t *testing.T) {
 	for name, contents := range testFiles {
 		path := filepath.Join(tmpDir, name)
 
-		bytes, err := ioutil.ReadFile(path)
+		bytes, err := os.ReadFile(path)
 		if err != nil {
 			t.Fatal("Unexpected error reading test file", err)
 		}
@@ -79,7 +79,7 @@ func TestRunDir(t *testing.T) {
 }
 
 func TestRunFilePaths(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "go")
+	tmpDir, err := os.MkdirTemp("", "go")
 	if err != nil {
 		t.Fatal("Unexpected error creating temp dir", err)
 	}
@@ -98,7 +98,7 @@ func TestRunFilePaths(t *testing.T) {
 	for name, contents := range testFiles {
 		path := filepath.Join(tmpDir, name)
 
-		bytes, err := ioutil.ReadFile(path)
+		bytes, err := os.ReadFile(path)
 		if err != nil {
 			t.Fatal("Unexpected error reading test file", err)
 		}
@@ -112,7 +112,7 @@ func TestRunFilePaths(t *testing.T) {
 }
 
 func TestRunListFiles(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "go")
+	tmpDir, err := os.MkdirTemp("", "go")
 	if err != nil {
 		t.Fatal("Unexpected error creating temp dir", err)
 	}
@@ -170,7 +170,7 @@ func writeTestFiles(
 			paths = &tmpPaths
 		}
 
-		err := ioutil.WriteFile(path, []byte(contents), 0644)
+		err := os.WriteFile(path, []byte(contents), 0644)
 		if err != nil {
 			t.Fatal("Unexpected error writing test file", err)
 		}
@@ -192,7 +192,7 @@ func captureStdout(t *testing.T, f func() error) (string, error) {
 	resultErr := f()
 
 	w.Close()
-	outBytes, err := ioutil.ReadAll(r)
+	outBytes, err := io.ReadAll(r)
 	if err != nil {
 		t.Fatal("Unexpected error reading result", err)
 	}
