@@ -1,15 +1,11 @@
 export GO111MODULE=on
 
 .PHONY: all
-all: install test
-
-.PHONY: install
-install:
-	go install .
+all: build test
 
 .PHONY: build
 build:
-	go build .
+	goreleaser build --clean --snapshot --single-target
 
 .PHONY: test
 test: vet

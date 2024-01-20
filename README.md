@@ -1,18 +1,17 @@
-[![Circle CI](https://circleci.com/gh/segmentio/golines.svg?style=svg&circle-token=b1d01d8b035ef0aa71ccd183580586a80cd85271)](https://circleci.com/gh/segmentio/golines)
+[![golines test](https://github.com/segmentio/golines/actions/workflows/go.yml/badge.svg)](https://github.com/segmentio/golines/actions/workflows/go.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/segmentio/golines)](https://goreportcard.com/report/github.com/segmentio/golines)
 [![GoDoc](https://godoc.org/github.com/segmentio/golines?status.svg)](https://godoc.org/github.com/segmentio/golines)
-[![Coverage](https://img.shields.io/badge/Go%20Coverage-84%25-brightgreen.svg?longCache=true&style=flat)](https://gocover.io/github.com/segmentio/golines?version=1.13.x)
 
 # golines
 
-Golines is a golang formatter that shortens long lines, in addition to all
+Golines is a Go code formatter that shortens long lines, in addition to all
 of the formatting fixes done by [`gofmt`](https://golang.org/cmd/gofmt/).
 
 ## Motivation
 
-The standard golang formatting tools (`gofmt`, `goimports`, etc.) are great, but
-[deliberately don't shorten long lines](https://github.com/golang/go/issues/11915); instead, this
-is an activity left to developers.
+The standard Go formatting tools (`gofmt`, `goimports`, etc.) are great, but
+[deliberately don't shorten long lines](https://github.com/golang/go/issues/11915);
+instead, this is an activity left to developers.
 
 While there are different tastes when it comes to line lengths in go, we've generally found
 that very long lines are more difficult to read than their shortened alternatives. As an example:
@@ -33,7 +32,7 @@ myMap := map[string]string{
 }
 ```
 
-We built `golines` to give go developers the option to automatically shorten long lines, like
+We built `golines` to give Go developers the option to automatically shorten long lines, like
 the one above, according to their preferences.
 
 More background and technical details are available in
@@ -47,27 +46,29 @@ view of a file with very long lines. More example pairs can be found in the
 
 ## Version support
 
-The latest version of `golines` requires golang 1.18 or newer due to generics-related dependencies.
-If you need to use `golines` with an older version of go, install the tool from the `v0.9.0`
-release.
+Newer releases of `golines` require at least Go 1.18 due to generics-related dependencies.
+However, the [minimum version](https://go.dev/ref/mod#go-mod-file-go) in [`go.mod`](./go.mod)
+should be considered the minimum required version of Go for any given version
+of `golines.` If you need to use `golines` with an older version of go, install
+the tool from the `v0.9.0` release.
 
 ## Usage
 
-First, install the tool. If you're using golang 1.18 or newer, run:
+First, install the tool. If you're using Go 1.21 or newer, run:
 
-```
+```text
 go install github.com/segmentio/golines@latest
 ```
 
-Otherwise, for older golang versions, run:
+Otherwise, for older Go versions, run:
 
-```
+```text
 go install github.com/segmentio/golines@v0.9.0
 ```
 
 Then, run:
 
-```
+```text
 golines [paths to format]
 ```
 
@@ -79,10 +80,10 @@ files in place, use the `-w` flag.
 
 ## Options
 
-Some other options are described in the sections below. Run `golines --help` to see
-all available flags and settings.
+Some other options are described in the sections below. Run `golines --help` to
+see all available flags and settings.
 
-#### Line length settings
+### Line length settings
 
 By default, the tool tries to shorten lines that are longer than 100 columns
 and assumes that 1 tab = 4 columns. The latter can be changed via the
@@ -102,15 +103,15 @@ with the `--shorten-comments` flag.
 
 #### Custom formatters
 
-By default, the tool will use [`goimports`](https://godoc.org/golang.org/x/tools/cmd/goimports) as
-the base formatter (if found), otherwise it will revert to `gofmt`. An explicit formatter can be
-set via the `--base-formatter` flag; the command provided here should accept its input via
-`stdin` and write its output to `stdout`.
+By default, the tool will use [`goimports`](https://godoc.org/golang.org/x/tools/cmd/goimports)
+as the base formatter (if found), otherwise it will revert to `gofmt`. An explicit
+formatter can be set via the `--base-formatter` flag; the command provided here
+should accept its input via `stdin` and write its output to `stdout`.
 
 #### Generated files
 
-By default, the tool will not format any files that look like they're generated. If you
-want to reformat these too, run with the `--no-ignore-generated` flag.
+By default, the tool will not format any files that look like they're generated.
+If you want to reformat these too, run with the `--no-ignore-generated` flag.
 
 #### Chained method splitting
 
@@ -140,8 +141,8 @@ myObj.Method(arg1, arg2, arg3).
 	AThirdMethod(arg1, arg2)
 ```
 
-The original behavior can be used by running the tool with the `--no-chain-split-dots`
-flag.
+The original behavior can be used by running the tool with the
+`--no-chain-split-dots` flag.
 
 #### Struct tag reformatting
 
@@ -167,9 +168,8 @@ let g:go_fmt_options = {
 1. Install the [Run on Save](https://marketplace.visualstudio.com/items?itemName=emeraldwalk.RunOnSave) extension
 2. Go into the VSCode settings menu, scroll down to the section for the "Run on Save"
   extension, click the "Edit in settings.json" link
-3. Set the `emeraldwalk.runonsave` key as follows (adding other flags to the `golines`
-  command as desired):
-
+3. Set the `emeraldwalk.runonsave` key as follows
+   (adding other flags to the `golines` command as desired):
 ```
     "emeraldwalk.runonsave": {
         "commands": [
@@ -181,18 +181,18 @@ let g:go_fmt_options = {
     }
 ```
 
-4. Save the settings and restart VSCode
+1. Save the settings and restart VSCode
 
 ### Goland
 
 1. Go into the Goland settings and click "Tools" -> "File Watchers" then click the plus to create a new file watcher
 2. Set the following properties and confirm by clicking OK:
-  - __Name:__ `golines`
-  - __File type:__ `Go files`
-  - __Scope:__ `Project Files`
-  - __Program:__ `golines`
-  - __Arguments:__ `$FilePath$ -w`
-  - __Output paths to refresh:__ `$FilePath$`
+   - __Name:__ `golines`
+   - __File type:__ `Go files`
+   - __Scope:__ `Project Files`
+   - __Program:__ `golines`
+   - __Arguments:__ `$FilePath$ -w`
+   - __Output paths to refresh:__ `$FilePath$`
 3. Activate your newly created file watcher in the Goland settings under "Tools" -> "Actions on save"
 
 ### Others

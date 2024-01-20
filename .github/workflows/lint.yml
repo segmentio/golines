@@ -1,0 +1,23 @@
+name: lint
+on:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  golangci:
+    name: golines lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.21"
+          cache: false
+      - name: run golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          install-mode: binary
+          skip-cache: true
