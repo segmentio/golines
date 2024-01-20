@@ -5,8 +5,6 @@ before:
 
 builds:
   - main: .
-    ldflags:
-      - -s -w
     flags:
       - -trimpath
       - -v

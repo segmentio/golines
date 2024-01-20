@@ -15,11 +15,13 @@ import (
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
-const (
-	versionStr = "0.11.0"
-)
-
 var (
+	// these values are provided automatically by Goreleaser
+	//   ref: https://goreleaser.com/customization/builds/
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+
 	// Flags
 	baseFormatterCmd = kingpin.Flag(
 		"base-formatter",
@@ -64,7 +66,7 @@ var (
 	tabLen = kingpin.Flag(
 		"tab-len",
 		"Length of a tab").Short('t').Default("4").Int()
-	version = kingpin.Flag(
+	versionFlag = kingpin.Flag(
 		"version",
 		"Print out version and exit").Default("false").Bool()
 	writeOutput = kingpin.Flag(
@@ -86,8 +88,9 @@ func main() {
 		log.SetLevel(log.InfoLevel)
 	}
 
-	if *version {
-		fmt.Printf("golines v%s\n", versionStr)
+	if *versionFlag {
+		fmt.Printf("golines v%s\n\nbuild information:\n\tbuild date: %s\n\tgit commit ref: %s\n",
+			version, date, commit)
 		return
 	}
 
