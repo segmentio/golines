@@ -16,6 +16,8 @@ import (
 )
 
 var (
+	// these values are provided automatically by Goreleaser
+	//   ref: https://goreleaser.com/customization/builds/
 	version = "dev"
 	commit  = "none"
 	date    = "unknown"
