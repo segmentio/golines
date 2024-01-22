@@ -10,7 +10,9 @@ permissions:
 
 jobs:
   goreleaser:
-    runs-on: ubuntu-latest
+    # we need ubuntu 20.04 because golines needs
+    # to run on hosts with older glibc versions
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
         with:
