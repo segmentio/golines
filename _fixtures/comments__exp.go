@@ -5,13 +5,18 @@ import "fmt"
 // Short prefix
 // This is a really, really long comment on a single line. We should try to break it up if possible
 // because it's longer than 100 chars. In fact, it's so long that it should probably be on three
-// lines instead of two. Wow, so long!!
+// lines instead of two. Wow, so long.
 // Short suffix
 //
 
 // This comment contains multiple contiguous lines which are greater than the target maximum line
 // length. The expected result is a sequence of shortened (reflown) lines without preserving the
 // position of line breaks.
+
+// Unlike the above comment block, only the current line in this comment block has length greater
+// than the target maximum line length but since the previous line doesn't end with a period, it
+// should be reflown with this line despite both the lines being shorter than the target maximum
+// line length.
 
 // Another comment
 
@@ -33,7 +38,7 @@ func testFunc() {
 			// These are comments like the ones in https://github.com/segmentio/golines/issues/9
 			//
 			// Documentation:
-			// https://swagger.io/docs/specification/authentication/bearer-authentication/more/more/more/more/more
+			// https://swagger.io/docs/specification/authentication/bearer-authentication/more/more/more/more/more.
 			//
 			// More documentation:
 			// https://swagger.io/docs/specification/authentication/bearer-authentication/more/more/more/more/more
