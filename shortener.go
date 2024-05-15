@@ -545,6 +545,8 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 		if shouldShorten {
 			s.formatFieldList(e.Params)
 		}
+	case *dst.IndexExpr:
+		s.formatExpr(e.X, shouldShorten, isChain)
 	case *dst.InterfaceType:
 		for _, method := range e.Methods.List {
 			if HasAnnotation(method) {
