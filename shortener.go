@@ -556,6 +556,11 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 	case *dst.SelectorExpr:
 		s.formatExpr(e.X, shouldShorten, isChain)
 	case *dst.StructType:
+		if HasAnnotationRecursive(e) && e.Fields != nil {
+			for _, field := range e.Fields.List {
+				s.formatExpr(field.Type, false, isChain)
+			}
+		}
 		if s.config.ReformatTags {
 			FormatStructTags(e.Fields)
 		}

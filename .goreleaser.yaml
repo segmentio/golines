@@ -16,6 +16,8 @@ builds:
       - arm64
     env:
       - GOAMD64=v3
+    ldflags:
+      - -s -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser 
 
 universal_binaries:
   - replace: true
