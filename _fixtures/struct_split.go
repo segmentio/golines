@@ -1,5 +1,5 @@
 package fixtures
 
-var _ = &mstypes.Filter{
-	Field: "Opportunities", Operator: mstypes.Operator_OPERATOR_EQUAL, Values: []string{"longclosed"},
+var _ = &mybigtype{
+	arg1: "biglongstring1", arg2: longfunctioncall(param1), arg3: []string{"list1"}, arg4: bigvariable,
 }
