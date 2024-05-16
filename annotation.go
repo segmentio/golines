@@ -69,10 +69,10 @@ func HasAnnotationRecursive(node dst.Node) bool {
 	case *dst.StructType:
 		return HasAnnotationRecursive(n.Fields)
 	case *dst.FuncType:
-		yes := n.Params != nil && HasAnnotationRecursive(n.Params)
-		yes = yes || (n.TypeParams != nil && HasAnnotationRecursive(n.TypeParams))
-		yes = yes || (n.Results != nil && HasAnnotationRecursive(n.Results))
-		return yes
+		hasAny := n.Params != nil && HasAnnotationRecursive(n.Params)
+		hasAny = hasAny || (n.TypeParams != nil && HasAnnotationRecursive(n.TypeParams))
+		hasAny = hasAny || (n.Results != nil && HasAnnotationRecursive(n.Results))
+		return hasAny
 	case *dst.TypeSpec:
 		return HasAnnotationRecursive(n.Type)
 	case *dst.Field:
