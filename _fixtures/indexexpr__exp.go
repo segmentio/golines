@@ -8,4 +8,4 @@ var a = longlistfunc(
 	veryveryverylongarg,
 	extremelylongarg,
 )[0]
-var b = shortfunc(c, d, e)
+var b = shortfunc(c, d, e)[1]
