@@ -592,17 +592,23 @@ func (s *Shortener) formatSpec(spec dst.Spec, force bool) {
 }
 
 // isGenerated checks whether the provided file bytes are from a generated file.
-// This is done by looking for a set of typically-used strings in the first 5 lines.
+// It checks the lines from the top of the file while they are comments or empty.
+// This ensures it skips the license message that are often placed at the top of files.
+// For backwards compatibility, it reads at least 5 lines.
 func (s *Shortener) isGenerated(contents []byte) bool {
 	scanner := bufio.NewScanner(bytes.NewBuffer(contents))
 
 	for i := 0; scanner.Scan(); i++ {
-		if i >= 5 {
+		line := strings.TrimSpace(strings.ToLower(scanner.Text()))
+		if len(line) == 0 {
+			continue
+		}
+		if i >= 5 && !strings.HasPrefix(line, "//") {
 			return false
 		}
 
 		for _, term := range generatedTerms {
-			if strings.Contains(strings.ToLower(scanner.Text()), term) {
+			if strings.Contains(line, term) {
 				return true
 			}
 		}
