@@ -195,6 +195,18 @@ let g:go_fmt_options = {
    - __Output paths to refresh:__ `$FilePath$`
 3. Activate your newly created file watcher in the Goland settings under "Tools" -> "Actions on save"
 
+### Emacs
+
+```emacs-lisp
+(setq
+ gofmt-command "golines"
+ gofmt-args '("-m" "80")) ;; example arguments
+
+;; format on save example
+(add-hook 'go-mode-hook
+          (lambda () (add-hook 'before-save-hook 'gofmt-before-save)))
+```
+
 ### Others
 
 Coming soon.
