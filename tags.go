@@ -137,7 +137,7 @@ func alignTags(fields []*dst.Field) {
 			lenUsed := 0
 
 			if ok {
-				tagComponents = append(tagComponents, fmt.Sprintf("%s:%#v", key, value))
+				tagComponents = append(tagComponents, fmt.Sprintf("%s:%q", key, value))
 				lenUsed += len(key) + tagValueLen(value) + 3
 			} else {
 				tagComponents = append(tagComponents, "")
