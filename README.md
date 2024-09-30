@@ -111,7 +111,7 @@ should accept its input via `stdin` and write its output to `stdout`.
 #### Generated files
 
 By default, the tool will not format any files that look like they're generated.
-If you want to reformat these too, run with the `--no-ignore-generated` flag.
+If you want to reformat these too, run with the flag `--ignore-generated=false`.
 
 #### Chained method splitting
 
