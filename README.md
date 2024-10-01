@@ -1,4 +1,4 @@
-[![golines test](https://github.com/segmentio/golines/actions/workflows/go.yml/badge.svg)](https://github.com/segmentio/golines/actions/workflows/go.yml)
+[![golines test](https://github.com/segmentio/golines/actions/workflows/test.yml/badge.svg)](https://github.com/segmentio/golines/actions/workflows/test.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/segmentio/golines)](https://goreportcard.com/report/github.com/segmentio/golines)
 [![GoDoc](https://godoc.org/github.com/segmentio/golines?status.svg)](https://godoc.org/github.com/segmentio/golines)
 
