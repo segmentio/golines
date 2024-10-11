@@ -434,7 +434,7 @@ func (s *Shortener) formatStmt(stmt dst.Stmt) {
 			s.formatStmt(stmt)
 		}
 	case *dst.CaseClause:
-		if shouldShorten {
+		if shouldShorten && !s.config.IgnoreBeforeIndentChange {
 			for _, arg := range st.List {
 				arg.Decorations().After = dst.NewLine
 				s.formatExpr(arg, false, false)
