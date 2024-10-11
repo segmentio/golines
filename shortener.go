@@ -35,14 +35,15 @@ const maxRounds = 20
 
 // ShortenerConfig stores the configuration options exposed by a Shortener instance.
 type ShortenerConfig struct {
-	MaxLen          int    // Max target width for each line
-	TabLen          int    // Width of a tab character
-	KeepAnnotations bool   // Whether to keep annotations in final result (for debugging only)
-	ShortenComments bool   // Whether to shorten comments
-	ReformatTags    bool   // Whether to reformat struct tags in addition to shortening long lines
-	IgnoreGenerated bool   // Whether to ignore generated files
-	DotFile         string // Path to write dot-formatted output to (for debugging only)
-	ChainSplitDots  bool   // Whether to split chain methods by putting dots at ends of lines
+	MaxLen                   int    // Max target width for each line
+	TabLen                   int    // Width of a tab character
+	KeepAnnotations          bool   // Whether to keep annotations in final result (for debugging only)
+	ShortenComments          bool   // Whether to shorten comments
+	ReformatTags             bool   // Whether to reformat struct tags in addition to shortening long lines
+	IgnoreGenerated          bool   // Whether to ignore generated files
+	DotFile                  string // Path to write dot-formatted output to (for debugging only)
+	ChainSplitDots           bool   // Whether to split chain methods by putting dots at ends of lines
+	IgnoreBeforeIndentChange bool   // Whether to ignore line length before indent change
 
 	// Formatter that will be run before and after main shortening process. If empty,
 	// defaults to goimports (if found), otherwise gofmt.
@@ -381,7 +382,7 @@ func (s *Shortener) formatNode(node dst.Node) {
 func (s *Shortener) formatDecl(decl dst.Decl) {
 	switch d := decl.(type) {
 	case *dst.FuncDecl:
-		if HasAnnotationRecursive(decl) {
+		if !s.config.IgnoreBeforeIndentChange && HasAnnotationRecursive(decl) {
 			if d.Type != nil && d.Type.Params != nil {
 				s.formatFieldList(d.Type.Params)
 			}
@@ -458,7 +459,9 @@ func (s *Shortener) formatStmt(stmt dst.Stmt) {
 	case *dst.GoStmt:
 		s.formatExpr(st.Call, shouldShorten, false)
 	case *dst.IfStmt:
-		s.formatExpr(st.Cond, shouldShorten, false)
+		if !s.config.IgnoreBeforeIndentChange {
+			s.formatExpr(st.Cond, shouldShorten, false)
+		}
 		s.formatStmt(st.Body)
 	case *dst.RangeStmt:
 		s.formatStmt(st.Body)
@@ -547,6 +550,9 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 			s.formatFieldList(e.Params)
 		}
 	case *dst.InterfaceType:
+		if s.config.IgnoreBeforeIndentChange {
+			return
+		}
 		for _, method := range e.Methods.List {
 			if HasAnnotation(method) {
 				s.formatExpr(method.Type, true, isChain)
