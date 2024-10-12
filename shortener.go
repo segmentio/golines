@@ -455,7 +455,9 @@ func (s *Shortener) formatStmt(stmt dst.Stmt) {
 	case *dst.ExprStmt:
 		s.formatExpr(st.X, shouldShorten, false)
 	case *dst.ForStmt:
-		s.formatStmt(st.Body)
+		if !s.config.IgnoreBeforeIndentChange {
+			s.formatStmt(st.Body)
+		}
 	case *dst.GoStmt:
 		s.formatExpr(st.Call, shouldShorten, false)
 	case *dst.IfStmt:
