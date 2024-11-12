@@ -186,13 +186,15 @@ let g:go_fmt_options = {
 ### Goland
 
 1. Go into the Goland settings and click "Tools" -> "File Watchers" then click the plus to create a new file watcher
-2. Set the following properties and confirm by clicking OK:
+2. Set the following properties:
    - __Name:__ `golines`
    - __File type:__ `Go files`
    - __Scope:__ `Project Files`
    - __Program:__ `golines`
    - __Arguments:__ `$FilePath$ -w`
    - __Output paths to refresh:__ `$FilePath$`
+4. In the "Advanced Options" section uncheck the __Auto-save edited files to trigger the watcher__ setting
+5. Confirm by clicking OK
 3. Activate your newly created file watcher in the Goland settings under "Tools" -> "Actions on save"
 
 ### Others
