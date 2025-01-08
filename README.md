@@ -195,7 +195,7 @@ let g:go_fmt_options = {
    - __Output paths to refresh:__ `$FilePath$`
 4. In the "Advanced Options" section uncheck the __Auto-save edited files to trigger the watcher__ setting
 5. Confirm by clicking OK
-3. Activate your newly created file watcher in the Goland settings under "Tools" -> "Actions on save"
+6. Activate your newly created file watcher in the Goland settings under "Tools" -> "Actions on save"
 
 ### Others
 
