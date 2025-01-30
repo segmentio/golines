@@ -8,6 +8,7 @@ import (
 
 	"github.com/dave/dst"
 	"github.com/fatih/structtag"
+	log "github.com/sirupsen/logrus"
 )
 
 var structTagRegexp = regexp.MustCompile("`([ ]*[a-zA-Z0-9_-]+:\".*\"[ ]*){2,}`")
@@ -213,5 +214,6 @@ func getWidth(node dst.Node) (int, error) {
 		return 1 + xWidth, nil
 	}
 
+	log.Debugf("Could not get width of node %+v", node)
 	return 0, fmt.Errorf("Could not get width of node %+v", node)
 }

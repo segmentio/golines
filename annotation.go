@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/dave/dst"
+	log "github.com/sirupsen/logrus"
 )
 
 const annotationPrefix = "// __golines:shorten:"
@@ -51,6 +52,12 @@ func HasAnnotationRecursive(node dst.Node) bool {
 	}
 
 	switch n := node.(type) {
+	case *dst.GenDecl:
+		for _, spec := range n.Specs {
+			if HasAnnotationRecursive(spec) {
+				return true
+			}
+		}
 	case *dst.FuncDecl:
 		if n.Type != nil && n.Type.Params != nil {
 			for _, item := range n.Type.Params.List {
@@ -59,8 +66,23 @@ func HasAnnotationRecursive(node dst.Node) bool {
 				}
 			}
 		}
+	case *dst.StructType:
+		return HasAnnotationRecursive(n.Fields)
+	case *dst.FuncType:
+		hasAny := n.Params != nil && HasAnnotationRecursive(n.Params)
+		hasAny = hasAny || (n.TypeParams != nil && HasAnnotationRecursive(n.TypeParams))
+		hasAny = hasAny || (n.Results != nil && HasAnnotationRecursive(n.Results))
+		return hasAny
+	case *dst.TypeSpec:
+		return HasAnnotationRecursive(n.Type)
 	case *dst.Field:
 		return HasTailAnnotation(n) || HasAnnotationRecursive(n.Type)
+	case *dst.FieldList:
+		for _, field := range n.List {
+			if HasAnnotationRecursive(field) {
+				return true
+			}
+		}
 	case *dst.SelectorExpr:
 		return HasAnnotation(n.Sel) || HasAnnotation(n.X)
 	case *dst.CallExpr:
@@ -79,6 +101,8 @@ func HasAnnotationRecursive(node dst.Node) bool {
 				return true
 			}
 		}
+	default:
+		log.Debugf("Couldn't analyze type for annotations: %+v", n)
 	}
 
 	return false
