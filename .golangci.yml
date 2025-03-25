@@ -1,4 +1,7 @@
 linters:
+  enable:
+    - testifylint
+    - usetesting
   disable:
     - errcheck
 

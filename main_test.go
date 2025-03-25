@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var testFiles = map[string]string{
@@ -27,11 +28,7 @@ func main() {
 }
 
 func TestRunDir(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "go")
-	if err != nil {
-		t.Fatal("Unexpected error creating temp dir", err)
-	}
-	defer os.RemoveAll(tmpDir)
+	tmpDir := t.TempDir()
 
 	paths = &[]string{tmpDir}
 	writeOutput = boolPtr(false)
@@ -39,16 +36,14 @@ func TestRunDir(t *testing.T) {
 
 	writeTestFiles(t, testFiles, false, tmpDir)
 
-	err = run()
-	assert.Nil(t, err)
+	err := run()
+	require.NoError(t, err)
 
 	// Without writeOutput set to true, inputs should be unchanged
 	for name, contents := range testFiles {
 		path := filepath.Join(tmpDir, name)
 		bytes, err := os.ReadFile(path)
-		if err != nil {
-			t.Fatal("Unexpected error reading test file", err)
-		}
+		require.NoError(t, err, "Unexpected error reading test file")
 
 		assert.Equal(
 			t,
@@ -59,16 +54,14 @@ func TestRunDir(t *testing.T) {
 
 	writeOutput = boolPtr(true)
 	err = run()
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	// Now, files should be modified in place
 	for name, contents := range testFiles {
 		path := filepath.Join(tmpDir, name)
 
 		bytes, err := os.ReadFile(path)
-		if err != nil {
-			t.Fatal("Unexpected error reading test file", err)
-		}
+		require.NoError(t, err, "Unexpected error reading test file")
 
 		assert.NotEqual(
 			t,
@@ -79,11 +72,7 @@ func TestRunDir(t *testing.T) {
 }
 
 func TestRunFilePaths(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "go")
-	if err != nil {
-		t.Fatal("Unexpected error creating temp dir", err)
-	}
-	defer os.RemoveAll(tmpDir)
+	tmpDir := t.TempDir()
 
 	paths = &[]string{}
 	writeOutput = boolPtr(true)
@@ -91,17 +80,15 @@ func TestRunFilePaths(t *testing.T) {
 
 	writeTestFiles(t, testFiles, true, tmpDir)
 
-	err = run()
-	assert.Nil(t, err)
+	err := run()
+	require.NoError(t, err)
 
 	// Now, files should be modified in place
 	for name, contents := range testFiles {
 		path := filepath.Join(tmpDir, name)
 
 		bytes, err := os.ReadFile(path)
-		if err != nil {
-			t.Fatal("Unexpected error reading test file", err)
-		}
+		require.NoError(t, err, "Unexpected error reading test file")
 
 		assert.NotEqual(
 			t,
@@ -112,11 +99,7 @@ func TestRunFilePaths(t *testing.T) {
 }
 
 func TestRunListFiles(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "go")
-	if err != nil {
-		t.Fatal("Unexpected error creating temp dir", err)
-	}
-	defer os.RemoveAll(tmpDir)
+	tmpDir := t.TempDir()
 
 	paths = &[]string{}
 	listFiles = boolPtr(true)
@@ -132,7 +115,7 @@ func TestRunListFiles(t *testing.T) {
 	writeTestFiles(t, updatedTestFiles, true, tmpDir)
 
 	output, err := captureStdout(t, run)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	// Only first two files appear in output list
 	expectedPaths := []string{
@@ -171,9 +154,7 @@ func writeTestFiles(
 		}
 
 		err := os.WriteFile(path, []byte(contents), 0644)
-		if err != nil {
-			t.Fatal("Unexpected error writing test file", err)
-		}
+		require.NoError(t, err, "Unexpected error writing test file")
 	}
 }
 
@@ -184,18 +165,14 @@ func captureStdout(t *testing.T, f func() error) (string, error) {
 	}()
 
 	r, w, err := os.Pipe()
-	if err != nil {
-		t.Fatal("Unexpected error opening pipe", err)
-	}
+	require.NoError(t, err, "Unexpected error opening pipe")
 	os.Stdout = w
 
 	resultErr := f()
 
 	w.Close()
 	outBytes, err := io.ReadAll(r)
-	if err != nil {
-		t.Fatal("Unexpected error reading result", err)
-	}
+	require.NoError(t, err, "Unexpected error reading result")
 	w.Close()
 
 	return string(outBytes), resultErr
