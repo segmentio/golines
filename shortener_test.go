@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const fixturesDir = "_fixtures"
@@ -16,7 +17,7 @@ const fixturesDir = "_fixtures"
 // environment variable set to "true".
 func TestShortener(t *testing.T) {
 	info, err := os.ReadDir(fixturesDir)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	fixturePaths := []string{}
 
@@ -35,11 +36,7 @@ func TestShortener(t *testing.T) {
 		)
 	}
 
-	dotDir, err := os.MkdirTemp("", "dot")
-	if err != nil {
-		t.Fatalf("Error creating output directory for dot files: %+v", err)
-	}
-	defer os.RemoveAll(dotDir)
+	dotDir := t.TempDir()
 
 	shortener := NewShortener(
 		ShortenerConfig{
@@ -57,38 +54,20 @@ func TestShortener(t *testing.T) {
 
 	for _, fixturePath := range fixturePaths {
 		contents, err := os.ReadFile(fixturePath)
-		if err != nil {
-			t.Fatalf(
-				"Unexpected error reading fixture %s: %+v",
-				fixturePath,
-				err,
-			)
-		}
+		require.NoErrorf(t, err, "Unexpected error reading fixture %s", fixturePath)
 
 		shortenedContents, err := shortener.Shorten(contents)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		expectedPath := fixturePath[0:len(fixturePath)-3] + "__exp" + ".go"
 
 		if os.Getenv("REGENERATE_TEST_OUTPUTS") == "true" {
 			err := os.WriteFile(expectedPath, shortenedContents, 0644)
-			if err != nil {
-				t.Fatalf(
-					"Unexpected error writing output file %s: %+v",
-					expectedPath,
-					err,
-				)
-			}
+			require.NoErrorf(t, err, "Unexpected error writing output file %s", expectedPath)
 		}
 
 		expectedContents, err := os.ReadFile(expectedPath)
-		if err != nil {
-			t.Fatalf(
-				"Unexpected error reading expected file %s: %+v",
-				expectedPath,
-				err,
-			)
-		}
+		require.NoErrorf(t, err, "Unexpected error reading expected file %s", expectedPath)
 
 		assert.Equal(t, string(expectedContents), string(shortenedContents))
 	}

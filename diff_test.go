@@ -13,5 +13,5 @@ func TestPrettyDiff(t *testing.T) {
 		[]byte("line 1\nline 2"),
 		[]byte("line 1\nline 2 modified"),
 	)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 }
