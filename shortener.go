@@ -10,10 +10,12 @@ import (
 	"os/exec"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/dave/dst"
 	"github.com/dave/dst/decorator"
+	editorconfig "github.com/editorconfig/editorconfig-core-go/v2"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -36,6 +38,7 @@ const maxRounds = 20
 // ShortenerConfig stores the configuration options exposed by a Shortener instance.
 type ShortenerConfig struct {
 	MaxLen          int    // Max target width for each line
+	CurrentMaxLen   int    // Max target width for each line for the current file or context
 	TabLen          int    // Width of a tab character
 	KeepAnnotations bool   // Whether to keep annotations in final result (for debugging only)
 	ShortenComments bool   // Whether to shorten comments
@@ -86,7 +89,41 @@ func NewShortener(config ShortenerConfig) *Shortener {
 		s.baseFormatterArgs = []string{}
 	}
 
+	s.config.CurrentMaxLen = s.config.MaxLen
+	if s.config.CurrentMaxLen == 0 {
+		s.config.CurrentMaxLen = defaultMaxLen
+	}
+
 	return s
+}
+
+func (s *Shortener) SetCurrentMaxLen(path string) {
+	// defined by user
+	if s.config.MaxLen != 0 {
+		s.config.CurrentMaxLen = s.config.MaxLen
+
+		return
+	}
+
+	// Try to get .editorconfig definition for the given path
+	def, err := editorconfig.GetDefinitionForFilename(path)
+	if err != nil {
+		s.config.CurrentMaxLen = defaultMaxLen
+
+		return
+	}
+
+	defMaxLen, ok := def.Raw["max_line_length"]
+	if ok && defMaxLen != editorconfig.UnsetValue {
+		defMaxLenInt, err := strconv.Atoi(defMaxLen)
+		if err == nil {
+			s.config.CurrentMaxLen = defMaxLenInt
+
+			return
+		}
+	}
+
+	s.config.CurrentMaxLen = defaultMaxLen
 }
 
 // Shorten shortens the provided golang file content bytes.
@@ -101,7 +138,7 @@ func (s *Shortener) Shorten(contents []byte) ([]byte, error) {
 	// Do initial, non-line-length-aware formatting
 	contents, err = s.formatSrc(contents)
 	if err != nil {
-		return nil, fmt.Errorf("Error formatting source: %+v", err)
+		return nil, fmt.Errorf("error formatting source: %+v", err)
 	}
 
 	for {
@@ -234,7 +271,7 @@ func (s *Shortener) annotateLongLines(lines []string) ([]string, int) {
 		length := s.lineLen(line)
 
 		if prevLen > -1 {
-			if length <= s.config.MaxLen {
+			if length <= s.config.CurrentMaxLen {
 				// Shortening successful, remove previous annotation
 				annotatedLines = annotatedLines[:len(annotatedLines)-1]
 			} else if length < prevLen {
@@ -242,7 +279,7 @@ func (s *Shortener) annotateLongLines(lines []string) ([]string, int) {
 				annotatedLines[len(annotatedLines)-1] = CreateAnnotation(length)
 				linesToShorten++
 			}
-		} else if !s.isComment(line) && length > s.config.MaxLen {
+		} else if !s.isComment(line) && length > s.config.CurrentMaxLen {
 			annotatedLines = append(
 				annotatedLines,
 				CreateAnnotation(length),
@@ -282,7 +319,7 @@ func (s *Shortener) shortenCommentsFunc(contents []byte) []byte {
 	for _, line := range lines {
 		if s.isComment(line) && !IsAnnotation(line) &&
 			!s.isGoDirective(line) &&
-			s.lineLen(line) > s.config.MaxLen {
+			s.lineLen(line) > s.config.CurrentMaxLen {
 			start := strings.Index(line, "//")
 			prefix = line[0:(start + 2)]
 			trimmedLine := strings.Trim(line[(start+2):], " ")
@@ -292,7 +329,7 @@ func (s *Shortener) shortenCommentsFunc(contents []byte) []byte {
 			// Reflow the accumulated `words` before appending the unprocessed `line`.
 			currLineLen := 0
 			currLineWords := []string{}
-			maxCommentLen := s.config.MaxLen - s.lineLen(prefix)
+			maxCommentLen := s.config.CurrentMaxLen - s.lineLen(prefix)
 			for _, word := range words {
 				if currLineLen > 0 && currLineLen+1+len(word) > maxCommentLen {
 					cleanedLines = append(
