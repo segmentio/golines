@@ -15,6 +15,8 @@ import (
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
+const defaultMaxLen = 100
+
 var (
 	// these values are provided automatically by Goreleaser
 	//   ref: https://goreleaser.com/customization/builds/
@@ -53,7 +55,7 @@ var (
 		"List files that would be reformatted by this tool").Short('l').Default("false").Bool()
 	maxLen = kingpin.Flag(
 		"max-len",
-		"Target maximum line length").Short('m').Default("100").Int()
+		fmt.Sprintf("Maximum line length, or .editorconfig or default to %d", defaultMaxLen)).Short('m').Int()
 	profile = kingpin.Flag(
 		"profile",
 		"Path to profile output").Default("").String()
@@ -118,6 +120,7 @@ func main() {
 func run() error {
 	config := ShortenerConfig{
 		MaxLen:           *maxLen,
+		CurrentMaxLen:    0,
 		TabLen:           *tabLen,
 		KeepAnnotations:  *keepAnnotations,
 		ShortenComments:  *shortenComments,
@@ -127,6 +130,7 @@ func run() error {
 		BaseFormatterCmd: *baseFormatterCmd,
 		ChainSplitDots:   *chainSplitDots,
 	}
+
 	shortener := NewShortener(config)
 
 	if len(*paths) == 0 {
@@ -219,7 +223,9 @@ func processFile(shortener *Shortener, path string) ([]byte, []byte, error) {
 		return nil, nil, err
 	}
 
+	shortener.SetCurrentMaxLen(path)
 	result, err := shortener.Shorten(contents)
+
 	return contents, result, err
 }
 
@@ -258,5 +264,4 @@ func handleOutput(path string, contents []byte, result []byte) error {
 
 	fmt.Print(string(result))
 	return nil
-
 }
