@@ -29,6 +29,8 @@ func TestShortener(t *testing.T) {
 			continue
 		} else if strings.HasSuffix(fileInfo.Name(), "__exp.go") {
 			continue
+		} else if strings.HasPrefix(fileInfo.Name(), "editorconfig_") {
+			continue
 		}
 
 		fixturePaths = append(
