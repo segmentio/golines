@@ -101,11 +101,11 @@ func (s *Shortener) Shorten(contents []byte) ([]byte, error) {
 	// Do initial, non-line-length-aware formatting
 	contents, err = s.formatSrc(contents)
 	if err != nil {
-		return nil, fmt.Errorf("Error formatting source: %+v", err)
+		return nil, fmt.Errorf("error formatting source: %+v", err)
 	}
 
 	for {
-		log.Debugf("Starting round %d", round)
+		log.Debugf("starting round %d", round)
 
 		// Annotate all long lines
 		lines := strings.Split(string(contents), "\n")
@@ -125,7 +125,7 @@ func (s *Shortener) Shorten(contents []byte) ([]byte, error) {
 		}
 
 		if stop {
-			log.Debug("Nothing more to shorten or reformat, stopping")
+			log.Debug("nothing more to shorten or reformat, stopping")
 			break
 		}
 
@@ -144,7 +144,7 @@ func (s *Shortener) Shorten(contents []byte) ([]byte, error) {
 			}
 			defer dotFile.Close()
 
-			log.Debugf("Writing dot file output to %s", s.config.DotFile)
+			log.Debugf("writing dot file output to %s", s.config.DotFile)
 			err = CreateDot(result, dotFile)
 			if err != nil {
 				return nil, err
@@ -160,14 +160,14 @@ func (s *Shortener) Shorten(contents []byte) ([]byte, error) {
 		output := bytes.NewBuffer([]byte{})
 		err = decorator.Fprint(output, result)
 		if err != nil {
-			return nil, fmt.Errorf("Error parsing source: %+v", err)
+			return nil, fmt.Errorf("error parsing source: %+v", err)
 		}
 		contents = output.Bytes()
 
 		round++
 
 		if round > maxRounds {
-			log.Debugf("Hit max rounds, stopping")
+			log.Debugf("hit max rounds, stopping")
 			break
 		}
 	}
@@ -182,7 +182,7 @@ func (s *Shortener) Shorten(contents []byte) ([]byte, error) {
 	// Do final round of non-line-length-aware formatting after we've fixed up the comments
 	contents, err = s.formatSrc(contents)
 	if err != nil {
-		return nil, fmt.Errorf("Error formatting source: %+v", err)
+		return nil, fmt.Errorf("error formatting source: %+v", err)
 	}
 
 	return contents, nil
@@ -357,20 +357,20 @@ func (s *Shortener) isGoDirective(line string) bool {
 func (s *Shortener) formatNode(node dst.Node) {
 	switch n := node.(type) {
 	case dst.Decl:
-		log.Debugf("Processing declaration: %+v", n)
+		log.Debugf("processing declaration: %+v", n)
 		s.formatDecl(n)
 	case dst.Expr:
-		log.Debugf("Processing expression: %+v", n)
+		log.Debugf("processing expression: %+v", n)
 		s.formatExpr(n, false, false)
 	case dst.Stmt:
-		log.Debugf("Processing statement: %+v", n)
+		log.Debugf("processing statement: %+v", n)
 		s.formatStmt(n)
 	case dst.Spec:
-		log.Debugf("Processing spec: %+v", n)
+		log.Debugf("processing spec: %+v", n)
 		s.formatSpec(n, false)
 	default:
 		log.Debugf(
-			"Got a node type that can't be shortened: %+v",
+			"got a node type that can't be shortened: %+v",
 			reflect.TypeOf(n),
 		)
 	}
@@ -393,7 +393,7 @@ func (s *Shortener) formatDecl(decl dst.Decl) {
 		}
 	default:
 		log.Debugf(
-			"Got a declaration type that can't be shortened: %+v",
+			"got a declaration type that can't be shortened: %+v",
 			reflect.TypeOf(d),
 		)
 	}
@@ -473,7 +473,7 @@ func (s *Shortener) formatStmt(stmt dst.Stmt) {
 	default:
 		if shouldShorten {
 			log.Debugf(
-				"Got a statement type that can't be shortened: %+v",
+				"got a statement type that can't be shortened: %+v",
 				reflect.TypeOf(st),
 			)
 		}
@@ -565,7 +565,7 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 	default:
 		if shouldShorten {
 			log.Debugf(
-				"Got an expression type that can't be shortened: %+v",
+				"got an expression type that can't be shortened: %+v",
 				reflect.TypeOf(e),
 			)
 		}
@@ -585,7 +585,7 @@ func (s *Shortener) formatSpec(spec dst.Spec, force bool) {
 	default:
 		if shouldShorten {
 			log.Debugf(
-				"Got a spec type that can't be shortened: %+v",
+				"got a spec type that can't be shortened: %+v",
 				reflect.TypeOf(sp),
 			)
 		}

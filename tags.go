@@ -213,5 +213,5 @@ func getWidth(node dst.Node) (int, error) {
 		return 1 + xWidth, nil
 	}
 
-	return 0, fmt.Errorf("Could not get width of node %+v", node)
+	return 0, fmt.Errorf("could not get width of node %+v", node)
 }
