@@ -1,4 +1,5 @@
 project_name: golines
+version: 2
 before:
   hooks:
     - go clean -x
@@ -28,7 +29,7 @@ archives:
     wrap_in_directory: true
 
 snapshot:
-  name_template: "{{ incpatch .Version }}-pre+{{ .ShortCommit }}"
+  version_template: "{{ incpatch .Version }}-pre+{{ .ShortCommit }}"
 
 changelog:
   use: github
