@@ -7,6 +7,15 @@
 Golines is a Go code formatter that shortens long lines, in addition to all
 of the formatting fixes done by [`gofmt`](https://golang.org/cmd/gofmt/).
 
+## Maintenance
+
+As of late 2024, [segmentio/golines](https://github.com/segmentio/golines/) has
+functionally been in maintenance mode and several dependencies appear to be
+similarly unmaintained. At some point in Q4 2025, this repository
+[will be archived](https://docs.github.com/en/repositories/archiving-a-github-repository/archiving-repositories)
+unless active maintainership can be found within Twilio Segment.
+The code will remain available and the terms of the license will not be changed.
+
 ## Motivation
 
 The standard Go formatting tools (`gofmt`, `goimports`, etc.) are great, but
@@ -46,11 +55,15 @@ view of a file with very long lines. More example pairs can be found in the
 
 ## Version support
 
-Newer releases of `golines` require at least Go 1.18 due to generics-related dependencies.
-However, the [minimum version](https://go.dev/ref/mod#go-mod-file-go) in [`go.mod`](./go.mod)
-should be considered the minimum required version of Go for any given version
-of `golines.` If you need to use `golines` with an older version of go, install
-the tool from the `v0.9.0` release.
+Since v0.10.0, releases of `golines` have required at least Go 1.18 due to
+generics-related dependencies. As of v0.13.0, `golines` requires a minimum of
+Go 1.23 due to transitive requirements introduced by dependencies.
+
+Generally, the [minimum version](https://go.dev/ref/mod#go-mod-file-go) in [`go.mod`](./go.mod)
+is the absolute minimum required version of Go for any given version of `golines.`
+
+If you need to use `golines` with an older version of go, install the tool from
+the `v0.9.x` or `v0.12.x` releases.
 
 ## Usage
 
