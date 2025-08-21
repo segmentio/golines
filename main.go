@@ -212,7 +212,7 @@ func processFile(shortener *Shortener, path string) ([]byte, []byte, error) {
 		return nil, nil, nil
 	}
 
-	log.Debugf("Processing file %s", path)
+	log.Debugf("processing file %s", path)
 
 	contents, err := os.ReadFile(path)
 	if err != nil {
@@ -239,7 +239,7 @@ func handleOutput(path string, contents []byte, result []byte) error {
 		return nil
 	} else if *writeOutput {
 		if path == "" {
-			return errors.New("No path to write out to")
+			return errors.New("no path to write out to")
 		}
 
 		info, err := os.Stat(path)
@@ -248,11 +248,11 @@ func handleOutput(path string, contents []byte, result []byte) error {
 		}
 
 		if bytes.Equal(contents, result) {
-			log.Debugf("Contents unchanged, skipping write")
+			log.Debugf("contents unchanged, skipping write")
 			return nil
 		}
 
-		log.Debugf("Contents changed, writing output to %s", path)
+		log.Debugf("contents changed, writing output to %s", path)
 		return os.WriteFile(path, result, info.Mode())
 	}
 
