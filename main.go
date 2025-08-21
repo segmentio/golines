@@ -10,9 +10,9 @@ import (
 	"runtime/pprof"
 	"strings"
 
+	kingpin "github.com/alecthomas/kingpin/v2"
 	log "github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
