@@ -72,6 +72,9 @@ var (
 	writeOutput = kingpin.Flag(
 		"write-output",
 		"Write output to source instead of stdout").Short('w').Default("false").Bool()
+	ignoreBeforeIndentChange = kingpin.Flag(
+		"ignore-indent-change",
+		"Ignore line length before indent change").Short('i').Default("false").Bool()
 
 	// Args
 	paths = kingpin.Arg(
@@ -117,15 +120,16 @@ func main() {
 
 func run() error {
 	config := ShortenerConfig{
-		MaxLen:           *maxLen,
-		TabLen:           *tabLen,
-		KeepAnnotations:  *keepAnnotations,
-		ShortenComments:  *shortenComments,
-		ReformatTags:     *reformatTags,
-		IgnoreGenerated:  *ignoreGenerated,
-		DotFile:          *dotFile,
-		BaseFormatterCmd: *baseFormatterCmd,
-		ChainSplitDots:   *chainSplitDots,
+		MaxLen:                   *maxLen,
+		TabLen:                   *tabLen,
+		KeepAnnotations:          *keepAnnotations,
+		ShortenComments:          *shortenComments,
+		ReformatTags:             *reformatTags,
+		IgnoreGenerated:          *ignoreGenerated,
+		DotFile:                  *dotFile,
+		BaseFormatterCmd:         *baseFormatterCmd,
+		ChainSplitDots:           *chainSplitDots,
+		IgnoreBeforeIndentChange: *ignoreBeforeIndentChange,
 	}
 	shortener := NewShortener(config)
 
@@ -258,5 +262,4 @@ func handleOutput(path string, contents []byte, result []byte) error {
 
 	fmt.Print(string(result))
 	return nil
-
 }
