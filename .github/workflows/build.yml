@@ -9,7 +9,7 @@ permissions:
 jobs:
   goreleaser:
     # using Ubuntu 22.04 should help maximize the
-    # glibc compatibility since across the board
+    # glibc compatibility across the board
     # without using a too-old-to-support version
     # of Ubuntu.
     runs-on: ubuntu-22.04
