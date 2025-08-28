@@ -1,5 +1,8 @@
 version: "2"
 linters:
+  enable:
+    - testifylint
+    - usetesting
   disable:
     - errcheck
   exclusions:
