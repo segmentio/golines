@@ -35,14 +35,15 @@ const maxRounds = 20
 
 // ShortenerConfig stores the configuration options exposed by a Shortener instance.
 type ShortenerConfig struct {
-	MaxLen          int    // Max target width for each line
-	TabLen          int    // Width of a tab character
-	KeepAnnotations bool   // Whether to keep annotations in final result (for debugging only)
-	ShortenComments bool   // Whether to shorten comments
-	ReformatTags    bool   // Whether to reformat struct tags in addition to shortening long lines
-	IgnoreGenerated bool   // Whether to ignore generated files
-	DotFile         string // Path to write dot-formatted output to (for debugging only)
-	ChainSplitDots  bool   // Whether to split chain methods by putting dots at ends of lines
+	MaxLen              int    // Max target width for each line
+	TabLen              int    // Width of a tab character
+	KeepAnnotations     bool   // Whether to keep annotations in final result (for debugging only)
+	ShortenComments     bool   // Whether to shorten comments
+	ReformatTags        bool   // Whether to reformat struct tags in addition to shortening long lines
+	IgnoreGenerated     bool   // Whether to ignore generated files
+	DotFile             string // Path to write dot-formatted output to (for debugging only)
+	ChainSplitDots      bool   // Whether to split chain methods by putting dots at ends of lines
+	CompactFunctionArgs bool   // Whether to compact function arguments to single line in signatures and calls
 
 	// Formatter that will be run before and after main shortening process. If empty,
 	// defaults to goimports (if found), otherwise gofmt.
@@ -401,14 +402,28 @@ func (s *Shortener) formatDecl(decl dst.Decl) {
 
 // formatFieldList formats a field list in a function declaration.
 func (s *Shortener) formatFieldList(fieldList *dst.FieldList) {
-	for f, field := range fieldList.List {
-		if f == 0 {
-			field.Decorations().Before = dst.NewLine
-		} else {
+	if s.config.CompactFunctionArgs {
+		for i, field := range fieldList.List {
 			field.Decorations().Before = dst.None
-		}
+			field.Decorations().After = dst.None
 
-		field.Decorations().After = dst.NewLine
+			if i == 0 {
+				field.Decorations().Before = dst.NewLine
+			}
+			if i == len(fieldList.List)-1 {
+				field.Decorations().After = dst.NewLine
+			}
+		}
+	} else {
+		for f, field := range fieldList.List {
+			if f == 0 {
+				field.Decorations().Before = dst.NewLine
+			} else {
+				field.Decorations().Before = dst.None
+			}
+
+			field.Decorations().After = dst.NewLine
+		}
 	}
 }
 
@@ -514,17 +529,36 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 		} else {
 			shortenChildArgs := shouldShorten || HasAnnotationRecursive(e)
 
-			for a, arg := range e.Args {
-				if shortenChildArgs {
-					if a == 0 {
-						arg.Decorations().Before = dst.NewLine
-					} else {
-						arg.Decorations().After = dst.None
+			if s.config.CompactFunctionArgs {
+				for i, field := range e.Args {
+					field.Decorations().Before = dst.None
+					field.Decorations().After = dst.None
+
+					if i == 0 {
+						field.Decorations().Before = dst.NewLine
 					}
-					arg.Decorations().After = dst.NewLine
+					if i == len(e.Args)-1 {
+						field.Decorations().After = dst.NewLine
+					}
 				}
-				s.formatExpr(arg, false, isChain)
+
+				for _, arg := range e.Args {
+					s.formatExpr(arg, false, isChain)
+				}
+			} else {
+				for a, arg := range e.Args {
+					if shortenChildArgs {
+						if a == 0 {
+							arg.Decorations().Before = dst.NewLine
+						} else {
+							arg.Decorations().After = dst.None
+						}
+						arg.Decorations().After = dst.NewLine
+					}
+					s.formatExpr(arg, false, isChain)
+				}
 			}
+
 			s.formatExpr(e.Fun, shouldShorten, isChain)
 		}
 	case *dst.CompositeLit:
