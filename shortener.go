@@ -530,19 +530,18 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 			shortenChildArgs := shouldShorten || HasAnnotationRecursive(e)
 
 			if s.config.CompactFunctionArgs {
-				for i, field := range e.Args {
-					field.Decorations().Before = dst.None
-					field.Decorations().After = dst.None
+				for i, arg := range e.Args {
+					if shortenChildArgs {
+						arg.Decorations().Before = dst.None
+						arg.Decorations().After = dst.None
 
-					if i == 0 {
-						field.Decorations().Before = dst.NewLine
+						if i == 0 {
+							arg.Decorations().Before = dst.NewLine
+						}
+						if i == len(e.Args)-1 {
+							arg.Decorations().After = dst.NewLine
+						}
 					}
-					if i == len(e.Args)-1 {
-						field.Decorations().After = dst.NewLine
-					}
-				}
-
-				for _, arg := range e.Args {
 					s.formatExpr(arg, false, isChain)
 				}
 			} else {
