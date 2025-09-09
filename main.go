@@ -30,6 +30,9 @@ var (
 		"chain-split-dots",
 		"Split chained methods on the dots as opposed to the arguments").
 		Default("true").Bool()
+	compactFunctionArgs = kingpin.Flag(
+		"compact-function-args",
+		"Compact function arguments to single line in signatures and calls").Bool()
 	debug = kingpin.Flag(
 		"debug",
 		"Show debug output").Short('d').Default("false").Bool()
@@ -117,15 +120,16 @@ func main() {
 
 func run() error {
 	config := ShortenerConfig{
-		MaxLen:           *maxLen,
-		TabLen:           *tabLen,
-		KeepAnnotations:  *keepAnnotations,
-		ShortenComments:  *shortenComments,
-		ReformatTags:     *reformatTags,
-		IgnoreGenerated:  *ignoreGenerated,
-		DotFile:          *dotFile,
-		BaseFormatterCmd: *baseFormatterCmd,
-		ChainSplitDots:   *chainSplitDots,
+		MaxLen:              *maxLen,
+		TabLen:              *tabLen,
+		KeepAnnotations:     *keepAnnotations,
+		ShortenComments:     *shortenComments,
+		ReformatTags:        *reformatTags,
+		IgnoreGenerated:     *ignoreGenerated,
+		DotFile:             *dotFile,
+		BaseFormatterCmd:    *baseFormatterCmd,
+		ChainSplitDots:      *chainSplitDots,
+		CompactFunctionArgs: *compactFunctionArgs,
 	}
 	shortener := NewShortener(config)
 
