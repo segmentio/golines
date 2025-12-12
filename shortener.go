@@ -454,12 +454,43 @@ func (s *Shortener) formatStmt(stmt dst.Stmt) {
 	case *dst.ExprStmt:
 		s.formatExpr(st.X, shouldShorten, false)
 	case *dst.ForStmt:
+		if st.Init != nil {
+			s.formatStmt(st.Init)
+			if shouldShorten {
+				if assignStmt, ok := st.Init.(*dst.AssignStmt); ok {
+					for _, expr := range assignStmt.Rhs {
+						s.formatExpr(expr, true, false)
+					}
+				}
+			}
+		}
+		if st.Cond != nil {
+			s.formatExpr(st.Cond, shouldShorten, false)
+		}
+		if st.Post != nil {
+			s.formatStmt(st.Post)
+		}
 		s.formatStmt(st.Body)
 	case *dst.GoStmt:
 		s.formatExpr(st.Call, shouldShorten, false)
 	case *dst.IfStmt:
+		if st.Init != nil {
+			s.formatStmt(st.Init)
+			// If the init statement is an assignment containing a call expression that
+			// should be shortened, mark it for shortening
+			if shouldShorten {
+				if assignStmt, ok := st.Init.(*dst.AssignStmt); ok {
+					for _, expr := range assignStmt.Rhs {
+						s.formatExpr(expr, true, false)
+					}
+				}
+			}
+		}
 		s.formatExpr(st.Cond, shouldShorten, false)
 		s.formatStmt(st.Body)
+		if st.Else != nil {
+			s.formatStmt(st.Else)
+		}
 	case *dst.RangeStmt:
 		s.formatStmt(st.Body)
 	case *dst.ReturnStmt:
@@ -469,6 +500,19 @@ func (s *Shortener) formatStmt(stmt dst.Stmt) {
 	case *dst.SelectStmt:
 		s.formatStmt(st.Body)
 	case *dst.SwitchStmt:
+		if st.Init != nil {
+			s.formatStmt(st.Init)
+			if shouldShorten {
+				if assignStmt, ok := st.Init.(*dst.AssignStmt); ok {
+					for _, expr := range assignStmt.Rhs {
+						s.formatExpr(expr, true, false)
+					}
+				}
+			}
+		}
+		if st.Tag != nil {
+			s.formatExpr(st.Tag, shouldShorten, false)
+		}
 		s.formatStmt(st.Body)
 	default:
 		if shouldShorten {
@@ -528,7 +572,11 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 			s.formatExpr(e.Fun, shouldShorten, isChain)
 		}
 	case *dst.CompositeLit:
-		if shouldShorten {
+		// Check if we should shorten - either because the parent told us to,
+		// or because one of the elements has an annotation (meaning the line
+		// with the elements is too long)
+		shortenElements := shouldShorten || HasAnnotationRecursive(e)
+		if shortenElements {
 			for i, element := range e.Elts {
 				if i == 0 {
 					element.Decorations().Before = dst.NewLine
