@@ -241,6 +241,10 @@ func (s *Shortener) annotateLongLines(lines []string) ([]string, int) {
 				// Replace annotation with new length
 				annotatedLines[len(annotatedLines)-1] = CreateAnnotation(length)
 				linesToShorten++
+			} else {
+				// Line is still too long with no progress, but keep trying
+				// (maxRounds will prevent infinite loops)
+				linesToShorten++
 			}
 		} else if !s.isComment(line) && length > s.config.MaxLen {
 			annotatedLines = append(
@@ -542,7 +546,7 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 			s.formatExpr(e.Y, shouldShorten, isChain)
 		}
 	case *dst.CallExpr:
-		_, ok := e.Fun.(*dst.SelectorExpr)
+		selectorExpr, ok := e.Fun.(*dst.SelectorExpr)
 
 		if ok &&
 			s.config.ChainSplitDots &&
@@ -550,8 +554,19 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 			(isChain || s.chainLength(e) > 1) {
 			e.Decorations().After = dst.NewLine
 
-			for _, arg := range e.Args {
-				s.formatExpr(arg, false, true)
+			// If this specific call is annotated (line still too long after chain split),
+			// also split the arguments. The annotation may be on the CallExpr, the
+			// SelectorExpr, or the method name Ident.
+			shortenArgs := HasAnnotation(e) || HasAnnotation(selectorExpr) ||
+				HasAnnotation(selectorExpr.Sel)
+			for a, arg := range e.Args {
+				if shortenArgs {
+					if a == 0 {
+						arg.Decorations().Before = dst.NewLine
+					}
+					arg.Decorations().After = dst.NewLine
+				}
+				s.formatExpr(arg, shortenArgs, true)
 			}
 
 			s.formatExpr(e.Fun, shouldShorten, true)
