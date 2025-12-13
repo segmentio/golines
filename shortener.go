@@ -589,6 +589,16 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 			s.formatExpr(element, false, isChain)
 		}
 	case *dst.FuncLit:
+		// If the function literal line is too long, expand the body
+		if shouldShorten && e.Body != nil && len(e.Body.List) > 0 {
+			// Put each statement in the body on its own line
+			for i, stmt := range e.Body.List {
+				if i == 0 {
+					stmt.Decorations().Before = dst.NewLine
+				}
+				stmt.Decorations().After = dst.NewLine
+			}
+		}
 		s.formatStmt(e.Body)
 	case *dst.FuncType:
 		if shouldShorten {
