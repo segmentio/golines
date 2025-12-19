@@ -7,14 +7,20 @@
 Golines is a Go code formatter that shortens long lines, in addition to all
 of the formatting fixes done by [`gofmt`](https://golang.org/cmd/gofmt/).
 
-## Maintenance
+## Maintenance & Archiving
 
-As of late 2024, [segmentio/golines](https://github.com/segmentio/golines/) has
-functionally been in maintenance mode and several dependencies appear to be
-similarly unmaintained. At some point in Q4 2025, this repository
-[will be archived](https://docs.github.com/en/repositories/archiving-a-github-repository/archiving-repositories)
-unless active maintainership can be found within Twilio Segment.
-The code will remain available and the terms of the license will not be changed.
+> [!IMPORTANT]
+> As of late 2024, [segmentio/golines](https://github.com/segmentio/golines/) has
+> functionally been in maintenance mode and several dependencies appear to be
+> similarly unmaintained.
+> 
+> As of 2025-12-19, this repository
+> [has been archived](https://docs.github.com/en/repositories/archiving-a-github-repository/archiving-repositories).
+> At the time this repo was archived, the maintainers of golangci-lint
+> [maintain a fork](https://github.com/golangci/golines/) that incorporates several
+> patches and fixes. This project is unaffiliated with Twilio Segment.
+> 
+> The original code will remain available and the terms of the license will not be changed.
 
 ## Motivation
 
