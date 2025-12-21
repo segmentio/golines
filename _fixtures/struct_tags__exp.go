@@ -6,7 +6,7 @@ type MyStruct struct {
 	Field1 string `json:"field1" info:"something"`
 
 	// Field6 example adapted from https://github.com/segmentio/golines/issues/15.
-	ALongField2 string `json:"long_field2 ãï" info:"something else ãï"                         tag:"a really long tag that extends us beyond 100 chars"`
+	ALongField2 string `json:"long_field2 ãï" info:"something else ãï"                         tag:"a really long tag that extends us beyond 100 chars \\escaped\\|escaped"`
 	Field3      string `json:"field3"         info:"ãï third thing"`
 	Field4      string `json:"field3"                                                          tag:"ãï something"`
 	Field5      int    `                                                                       tag:"something else"`
