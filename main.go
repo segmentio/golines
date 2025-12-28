@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -9,6 +10,7 @@ import (
 	"path/filepath"
 	"runtime/pprof"
 	"strings"
+	"sync"
 
 	kingpin "github.com/alecthomas/kingpin/v2"
 	log "github.com/sirupsen/logrus"
@@ -72,6 +74,9 @@ var (
 	writeOutput = kingpin.Flag(
 		"write-output",
 		"Write output to source instead of stdout").Short('w').Default("false").Bool()
+	jobs = kingpin.Flag(
+		"jobs",
+		"execute N jobs with -w option").Short('j').Default("1").Int()
 
 	// Args
 	paths = kingpin.Arg(
@@ -115,6 +120,36 @@ func main() {
 	}
 }
 
+type WorkerProcessRequest struct {
+	path string
+}
+
+func startWorker(ctx context.Context, shortener *Shortener, wg *sync.WaitGroup, num int) (requestch chan *WorkerProcessRequest) {
+	requestch = make(chan *WorkerProcessRequest)
+
+	for i := 0; i < num; i++ {
+		go func() {
+			for {
+				select {
+				case req := <-requestch:
+					contents, result, err := processFile(shortener, req.path)
+					if err != nil {
+						log.Fatal(err)
+					}
+					err = handleOutput(req.path, contents, result)
+					if err != nil {
+						log.Fatal(err)
+					}
+					wg.Done()
+				case <-ctx.Done():
+					return
+				}
+			}
+		}()
+	}
+
+	return
+}
 func run() error {
 	config := ShortenerConfig{
 		MaxLen:           *maxLen,
@@ -128,6 +163,11 @@ func run() error {
 		ChainSplitDots:   *chainSplitDots,
 	}
 	shortener := NewShortener(config)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	wg := &sync.WaitGroup{}
+	worker := startWorker(ctx, shortener, wg, *jobs)
 
 	if len(*paths) == 0 {
 		// Read input from stdin
@@ -169,14 +209,21 @@ func run() error {
 						}
 
 						if !subInfo.IsDir() && strings.HasSuffix(subPath, ".go") {
-							// Shorten file and generate output
-							contents, result, err := processFile(shortener, subPath)
-							if err != nil {
-								return err
-							}
-							err = handleOutput(subPath, contents, result)
-							if err != nil {
-								return err
+							if (*writeOutput || *listFiles) && *jobs >= 2 {
+								wg.Add(1)
+								worker <- &WorkerProcessRequest{
+									path: subPath,
+								}
+							} else {
+								// Shorten file and generate output
+								contents, result, err := processFile(shortener, subPath)
+								if err != nil {
+									return err
+								}
+								err = handleOutput(subPath, contents, result)
+								if err != nil {
+									return err
+								}
 							}
 						}
 
@@ -187,18 +234,26 @@ func run() error {
 					return err
 				}
 			default:
-				// Path is a file
-				contents, result, err := processFile(shortener, path)
-				if err != nil {
-					return err
-				}
-				err = handleOutput(path, contents, result)
-				if err != nil {
-					return err
+				if (*writeOutput || *listFiles) && *jobs >= 2 {
+					wg.Add(1)
+					worker <- &WorkerProcessRequest{
+						path: path,
+					}
+				} else {
+					// Path is a file
+					contents, result, err := processFile(shortener, path)
+					if err != nil {
+						return err
+					}
+					err = handleOutput(path, contents, result)
+					if err != nil {
+						return err
+					}
 				}
 			}
 		}
 	}
+	wg.Wait()
 
 	return nil
 }
