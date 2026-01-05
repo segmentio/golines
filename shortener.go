@@ -241,6 +241,10 @@ func (s *Shortener) annotateLongLines(lines []string) ([]string, int) {
 				// Replace annotation with new length
 				annotatedLines[len(annotatedLines)-1] = CreateAnnotation(length)
 				linesToShorten++
+			} else {
+				// Line is still too long with no progress, but keep trying
+				// (maxRounds will prevent infinite loops)
+				linesToShorten++
 			}
 		} else if !s.isComment(line) && length > s.config.MaxLen {
 			annotatedLines = append(
@@ -454,12 +458,43 @@ func (s *Shortener) formatStmt(stmt dst.Stmt) {
 	case *dst.ExprStmt:
 		s.formatExpr(st.X, shouldShorten, false)
 	case *dst.ForStmt:
+		if st.Init != nil {
+			s.formatStmt(st.Init)
+			if shouldShorten {
+				if assignStmt, ok := st.Init.(*dst.AssignStmt); ok {
+					for _, expr := range assignStmt.Rhs {
+						s.formatExpr(expr, true, false)
+					}
+				}
+			}
+		}
+		if st.Cond != nil {
+			s.formatExpr(st.Cond, shouldShorten, false)
+		}
+		if st.Post != nil {
+			s.formatStmt(st.Post)
+		}
 		s.formatStmt(st.Body)
 	case *dst.GoStmt:
 		s.formatExpr(st.Call, shouldShorten, false)
 	case *dst.IfStmt:
+		if st.Init != nil {
+			s.formatStmt(st.Init)
+			// If the init statement is an assignment containing a call expression that
+			// should be shortened, mark it for shortening
+			if shouldShorten {
+				if assignStmt, ok := st.Init.(*dst.AssignStmt); ok {
+					for _, expr := range assignStmt.Rhs {
+						s.formatExpr(expr, true, false)
+					}
+				}
+			}
+		}
 		s.formatExpr(st.Cond, shouldShorten, false)
 		s.formatStmt(st.Body)
+		if st.Else != nil {
+			s.formatStmt(st.Else)
+		}
 	case *dst.RangeStmt:
 		s.formatStmt(st.Body)
 	case *dst.ReturnStmt:
@@ -469,6 +504,19 @@ func (s *Shortener) formatStmt(stmt dst.Stmt) {
 	case *dst.SelectStmt:
 		s.formatStmt(st.Body)
 	case *dst.SwitchStmt:
+		if st.Init != nil {
+			s.formatStmt(st.Init)
+			if shouldShorten {
+				if assignStmt, ok := st.Init.(*dst.AssignStmt); ok {
+					for _, expr := range assignStmt.Rhs {
+						s.formatExpr(expr, true, false)
+					}
+				}
+			}
+		}
+		if st.Tag != nil {
+			s.formatExpr(st.Tag, shouldShorten, false)
+		}
 		s.formatStmt(st.Body)
 	default:
 		if shouldShorten {
@@ -498,7 +546,7 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 			s.formatExpr(e.Y, shouldShorten, isChain)
 		}
 	case *dst.CallExpr:
-		_, ok := e.Fun.(*dst.SelectorExpr)
+		selectorExpr, ok := e.Fun.(*dst.SelectorExpr)
 
 		if ok &&
 			s.config.ChainSplitDots &&
@@ -506,8 +554,19 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 			(isChain || s.chainLength(e) > 1) {
 			e.Decorations().After = dst.NewLine
 
-			for _, arg := range e.Args {
-				s.formatExpr(arg, false, true)
+			// If this specific call is annotated (line still too long after chain split),
+			// also split the arguments. The annotation may be on the CallExpr, the
+			// SelectorExpr, or the method name Ident.
+			shortenArgs := HasAnnotation(e) || HasAnnotation(selectorExpr) ||
+				HasAnnotation(selectorExpr.Sel)
+			for a, arg := range e.Args {
+				if shortenArgs {
+					if a == 0 {
+						arg.Decorations().Before = dst.NewLine
+					}
+					arg.Decorations().After = dst.NewLine
+				}
+				s.formatExpr(arg, shortenArgs, true)
 			}
 
 			s.formatExpr(e.Fun, shouldShorten, true)
@@ -528,7 +587,11 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 			s.formatExpr(e.Fun, shouldShorten, isChain)
 		}
 	case *dst.CompositeLit:
-		if shouldShorten {
+		// Check if we should shorten - either because the parent told us to,
+		// or because one of the elements has an annotation (meaning the line
+		// with the elements is too long)
+		shortenElements := shouldShorten || HasAnnotationRecursive(e)
+		if shortenElements {
 			for i, element := range e.Elts {
 				if i == 0 {
 					element.Decorations().Before = dst.NewLine
@@ -541,6 +604,16 @@ func (s *Shortener) formatExpr(expr dst.Expr, force bool, isChain bool) {
 			s.formatExpr(element, false, isChain)
 		}
 	case *dst.FuncLit:
+		// If the function literal line is too long, expand the body
+		if shouldShorten && e.Body != nil && len(e.Body.List) > 0 {
+			// Put each statement in the body on its own line
+			for i, stmt := range e.Body.List {
+				if i == 0 {
+					stmt.Decorations().Before = dst.NewLine
+				}
+				stmt.Decorations().After = dst.NewLine
+			}
+		}
 		s.formatStmt(e.Body)
 	case *dst.FuncType:
 		if shouldShorten {

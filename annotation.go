@@ -79,6 +79,12 @@ func HasAnnotationRecursive(node dst.Node) bool {
 				return true
 			}
 		}
+	case *dst.CompositeLit:
+		for _, elt := range n.Elts {
+			if HasAnnotation(elt) {
+				return true
+			}
+		}
 	}
 
 	return false

@@ -20,9 +20,16 @@ func ChainedCalls() {
 	NewChain().ChainCall(
 		"a really really really really really long argument4",
 		"another really really really really really long argument4",
-		fmt.Sprintf("%v", "this is a long method"),
+		fmt.Sprintf(
+			"%v",
+			"this is a long method",
+		),
 	).
-		ChainCall("a really really really really really long argument5", "another really really really really really long argument5", "a third really really really really really long argument5").
+		ChainCall(
+			"a really really really really really long argument5",
+			"another really really really really really long argument5",
+			"a third really really really really really long argument5",
+		).
 		ChainCall("a", "b", fmt.Sprintf("%v", "this is a long method"))
 	NewChain().ChainCall("a", "b", "c").ChainCall("d", "e", "f")
 	NewChain().ChainCall("a", "b", "c").
