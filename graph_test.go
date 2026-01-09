@@ -7,6 +7,7 @@ import (
 
 	"github.com/dave/dst/decorator"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -41,11 +42,11 @@ digraph {
 
 func TestCreateDot(t *testing.T) {
 	node, err := decorator.Parse(testCode)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	out := &bytes.Buffer{}
 	err = CreateDot(node, out)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, strings.TrimSpace(expDot), out.String())
 }
