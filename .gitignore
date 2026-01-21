@@ -15,5 +15,6 @@
 vendor
 .vscode
 golines
+.idea
 
 coverage.out
