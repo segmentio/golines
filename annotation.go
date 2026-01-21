@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 
 	"github.com/dave/dst"
+	log "github.com/sirupsen/logrus"
 )
 
 const annotationPrefix = "// __golines:shorten:"
@@ -51,6 +53,12 @@ func HasAnnotationRecursive(node dst.Node) bool {
 	}
 
 	switch n := node.(type) {
+	case *dst.CompositeLit:
+		for _, elt := range n.Elts {
+			if HasAnnotationRecursive(elt) {
+				return true
+			}
+		}
 	case *dst.FuncDecl:
 		if n.Type != nil && n.Type.Params != nil {
 			for _, item := range n.Type.Params.List {
@@ -79,6 +87,8 @@ func HasAnnotationRecursive(node dst.Node) bool {
 				return true
 			}
 		}
+	default:
+		log.Debugf("Couldn't analyze type for annotations: %+v", reflect.TypeOf(n))
 	}
 
 	return false
