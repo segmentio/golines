@@ -207,9 +207,12 @@ func run() error {
 // in a file. It returns the original contents (useful for debugging), the
 // shortened version, and an error.
 func processFile(shortener *Shortener, path string) ([]byte, []byte, error) {
-	_, fileName := filepath.Split(path)
-	if *ignoreGenerated && strings.HasPrefix(fileName, "generated_") {
-		return nil, nil, nil
+	dirPath, fileName := filepath.Split(path)
+	if *ignoreGenerated {
+		dirName := filepath.Base(dirPath)
+		if strings.HasPrefix(fileName, "generated_") || strings.HasPrefix(dirName, "gen") {
+			return nil, nil, nil
+		}
 	}
 
 	log.Debugf("processing file %s", path)
